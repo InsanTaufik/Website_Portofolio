@@ -147,7 +147,7 @@ const portfolioData = {
         location: "Jakarta Utara, ID",
         role: "Product Quality Assurance",
         description:
-          "Leading data validation and QA for a large-scale migration from Microsoft Fabric (Azure) to Google BigQuery (GCP), ensuring data integrity across enterprise reporting systems.",
+          "Contributing to data validation and QA for a large-scale migration from Microsoft Fabric (Azure) to Google BigQuery (GCP), ensuring data integrity across enterprise reporting systems.",
         highlights: [
           "Developed an automated Python + pandas validation framework eliminating manual large-scale data verification",
           "Designed partition-based (year-month) validation logic for high-volume transactional datasets without memory overload",

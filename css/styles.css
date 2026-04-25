@@ -846,7 +846,7 @@ section {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--border-light);
-  color: #dddddd;
+  color: #ffffff;
   background: var(--off-white);
   transition:
     background 0.15s,
