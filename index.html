@@ -1,9 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Muhamad Insan Taufik — QA Specialist</title>
+    <title>Muhamad Insan Taufik — Software QA Engineer</title>
+    <meta
+      name="description"
+      content="Muhamad Insan Taufik — ISTQB-certified Software QA Engineer. Functional, API, mobile & web testing, enterprise data-migration and Power BI validation, SQL & Python/Pandas automation."
+    />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="color-scheme" content="light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Muhamad Insan Taufik — Software QA Engineer" />
+    <meta
+      property="og:description"
+      content="ISTQB-certified Software QA Engineer. Functional, API, mobile & web testing, data-migration and Power BI validation, SQL & Python automation."
+    />
+    <meta name="twitter:card" content="summary" />    <link rel="icon" type="image/svg+xml" href="assets/icons/mit-tab.svg" />
+    <script>
+      /* Swap the no-js flag before first paint so reveal elements stay hidden
+         only when JS can actually animate them in. */
+      document.documentElement.classList.remove("no-js");
+      document.documentElement.classList.add("js");
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,9 +34,13 @@
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
+    <a href="#about" class="skip-link">Skip to content</a>
+
     <nav id="navbar">
       <div class="nav-inner" id="nav-root"></div>
+      <div class="nav-progress" id="nav-progress" aria-hidden="true"></div>
     </nav>
+    <div id="mobile-backdrop" class="mobile-backdrop" aria-hidden="true"></div>
     <div id="mobile-menu-root" class="mobile-menu"></div>
 
     <section id="hero">
@@ -56,6 +81,8 @@
     <footer>
       <div class="footer-inner" id="footer-root"></div>
     </footer>
+
+    <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
 
     <script src="js/data.js"></script>
     <script src="js/main.js"></script>
