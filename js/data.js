@@ -3,20 +3,25 @@
  * Loaded before main.js (see index.html).
  *
  * ─────────────────────────────────────────────────────────────
- * OPTIONAL FIELDS (safe to add / omit — the renderer degrades):
- *   hero.stats[].count ........... number to animate the counter to
- *   about.stats[].count .......... same, for the about stat cards
- *   experience.items[].metrics ... [{ value, label }] highlight chips
- *   skills.featured ............. ["Skill name", ...] shown as a top strip
- *   skills.levelLegend ......... { "3": "Advanced", "2": "Working", "1": "Familiar" }
- *   skills.categories[].chips .. string  OR  { name, level: 1|2|3 }
- *   projects.items[].year ...... "2025"
- *   projects.items[].role ...... "Lead QA"
- *   projects.items[].repo ...... "https://github.com/user/repo"
- *   projects.items[].links ..... [{ label, href }]
- *   projects.items[].meta ...... { language, updated }  (baked GitHub data)
- *   certifications.items[].credentialUrl ... "https://..."
- *   contact.email .............. plain address for the "copy" action
+ * SHAPES THE RENDERER UNDERSTANDS
+ *
+ * hero.evidence[]       { value, label, count? }  count = animate up to it
+ * hero.layers[]         { id, label, scope, detail }   → the layer diagram
+ *
+ * experience.items[]    { period, company, location, role, context,
+ *                         metrics[{value,label}], approach[], findings[],
+ *                         tags[] }
+ *                       approach/findings render inside a <details>.
+ *
+ * projects.items[]      { featured?, eyebrow, year, role, title, summary,
+ *                         stack[], repo?, links[{label,href}],
+ *                         meta{language,updated},
+ *                         problem?, approach[], result[],
+ *                         flow[]  → ["Source", "Step", "Target"] diagram
+ *                         metrics[{value,label}] }
+ *
+ * skills.groups[]       { id, title, evidence, items[] }   items = strings
+ * about.credentials[]   { issuer, name, year, credentialUrl? }
  * ─────────────────────────────────────────────────────────────
  */
 const portfolioData = {
@@ -31,44 +36,29 @@ const portfolioData = {
 
   nav: {
     links: [
-      { href: "#about", label: "About" },
       { href: "#experience", label: "Experience" },
-      { href: "#skills", label: "Skills" },
       { href: "#projects", label: "Projects" },
-      { href: "#certifications", label: "Certs" },
+      { href: "#skills", label: "Skills" },
+      { href: "#about", label: "About" },
       { href: "#contact", label: "Contact" },
     ],
-    mobileLinks: [
-      { href: "#about", label: "About" },
-      { href: "#experience", label: "Experience" },
-      { href: "#skills", label: "Skills" },
-      { href: "#projects", label: "Projects" },
-      { href: "#certifications", label: "Certifications" },
-      { href: "#contact", label: "Contact" },
-    ],
-    cta: { href: "mailto:insantaufik82@gmail.com", label: "Hire Me" },
+    cta: {
+      href: "assets/cv/Muhamad_Insan_Taufik_CV_2026.pdf",
+      label: "CV",
+      download: true,
+      downloadName: "Muhamad_Insan_Taufik_CV.pdf",
+    },
   },
 
   hero: {
-    eyebrow: "Available for New Roles",
-    nameLines: [
-      { text: "Muhamad", emphasis: false },
-      { text: "Insan", emphasis: true },
-      { text: "Taufik", emphasis: false },
-    ],
-    role: "Software QA Engineer · Functional, API, Mobile & Web Testing · Automation & Data Validation",
-    tagline: {
-      lead: "I make sure things work and stay working.",
-      rest:
-        " From functional, API, mobile and web testing to enterprise data-migration and Power BI validation—turning requirements into reliable releases with SQL and Python.",
-    },
+    status: "Open to QA roles",
+    location: "Tangerang Selatan, ID",
+    name: "Muhamad Insan Taufik",
+    role: "Software QA Engineer",
+    summary:
+      "I test enterprise applications across the layers they run on: the screens people use, the APIs behind them, and the warehouse underneath. Right now that means validating a Microsoft Fabric and Cloudera migration into BigQuery at Astra International, and the embedded Power BI dashboards built on top of it.",
     ctas: [
-      {
-        href: "#experience",
-        label: "View Experience",
-        variant: "primary",
-        icon: "chevron-down",
-      },
+      { href: "#experience", label: "View experience", variant: "primary", icon: "arrow-down" },
       {
         href: "assets/cv/Muhamad_Insan_Taufik_CV_2026.pdf",
         label: "Download CV",
@@ -78,136 +68,160 @@ const portfolioData = {
         downloadName: "Muhamad_Insan_Taufik_CV.pdf",
       },
     ],
-    stats: [
-      { value: "600+", label: "Test Cases Executed", count: 600 },
-      { value: "100+", label: "Datasets Validated", count: 100 },
-      { value: "5", label: "Industries Tested", count: 5 },
+    evidence: [
+      { value: "600+", label: "Test cases executed", count: 600 },
+      { value: "100+", label: "Datasets validated", count: 100 },
+      { value: "1B+", label: "Rows reconciled" },
+      { value: "5", label: "Industries", count: 5 },
     ],
-    terminal: {
-      filename: "qa_profile.py",
-      comment: "# QA Engineer Profile",
-      pairs: [
-        { key: "name", value: '"Muhamad Insan Taufik"' },
-        { key: "role", value: '"Software QA Engineer"' },
-        { key: "location", value: '"Tangerang Selatan, ID"' },
-      ],
-      skillsComment: "# Core Capabilities",
-      skills: [
-        '"Functional & API Testing"',
-        '"Data Validation & ETL QA"',
-        '"Power BI Embedded Testing"',
-        '"SQL · Python · Pandas"',
-        '"Playwright · Selenium · Tosca"',
-      ],
-      statusComment: "# Status",
-      statusLine: {
-        key: "status",
-        value: '"open_to_opportunities"',
-        valueClass: "t-green",
+    /* The layer diagram — replaces the old decorative terminal.
+       Each layer is something the CV can actually back up. */
+    layersCaption: "Where I test",
+    layers: [
+      {
+        id: "ui",
+        label: "Interface",
+        scope: "Web · Android · iOS · iPad",
+        detail: "Functional, regression, cross-device and responsive behaviour",
       },
-    },
+      {
+        id: "api",
+        label: "API",
+        scope: "REST · Postman",
+        detail: "Status codes, JSON payloads, auth flows, null and boundary cases",
+      },
+      {
+        id: "data",
+        label: "Data",
+        scope: "BigQuery · Fabric · Cloudera",
+        detail: "Schema, row counts, duplicates, precision, row-level hashes",
+      },
+      {
+        id: "bi",
+        label: "BI",
+        scope: "Power BI Embedded",
+        detail: "Report rendering, slicers, filters, refresh, fullscreen behaviour",
+      },
+      {
+        id: "auto",
+        label: "Automation",
+        scope: "Playwright · Tosca · Katalon · Python",
+        detail: "Regression suites and reconciliation scripts that run without me",
+      },
+    ],
   },
-
-  strengths: [
-    "Functional & Regression Testing",
-    "API & Integration Testing",
-    "Mobile & Web Testing",
-    "Power BI Embedded Testing",
-    "ETL & Data Migration QA",
-    "SQL & Python / Pandas Automation",
-    "SIT · UAT · Release Validation",
-    "Root Cause Analysis",
-    "Playwright Test Automation",
-    "Agile / Scrum Delivery",
-  ],
 
   about: {
     sectionLabel: "About",
-    titleLines: ["Detail-oriented.", "Data-driven.", "Reliable."],
+    title: "Background",
     paragraphs: [
-      "I'm an <strong>ISTQB-certified Software QA Engineer</strong> who enjoys breaking things before users ever see them. My work spans functional, regression, API, integration, mobile, web, and embedded-BI testing—plus large-scale data-migration and ETL validation.",
-      "I hold a <strong>Bachelor of Information Systems</strong> from Telkom University (GPA 3.68/4.00) and have tested across banking, capital markets, automotive, FMCG, and enterprise data platforms at companies including <strong>PT Astra International</strong> and <strong>PT IDX Solusi Teknologi Informasi</strong>.",
-      "I've validated <strong>100+ enterprise datasets</strong> and <strong>600+ test cases</strong>, reconciling data with SQL and a Python/Pandas automation framework and tracing schema, duplication, and precision mismatches to their root causes. I collaborate closely with data engineers, backend engineers, BAs, product owners, and DevOps teams. English: professional working proficiency.",
+      "I'm an <strong>ISTQB-certified Software QA Engineer</strong> based in Tangerang Selatan. Most of my work sits where an application meets its data: functional and regression testing on the front end, REST checks in the middle, and SQL and Python reconciliation against the warehouse behind it.",
+      "I hold a <strong>Bachelor of Information Systems</strong> from Telkom University (GPA 3.68/4.00). Since 2024 I've tested in banking, capital markets, automotive, FMCG, and enterprise data platforms, at <strong>PT Astra International</strong>, <strong>PT IDX Solusi Teknologi Informasi</strong>, <strong>PT Indivara Group</strong>, and <strong>Bank BTN</strong>.",
+      "The part I like most is the investigation: a row count that doesn't match, or a dashboard that renders on desktop but not on an iPad, then working back through the API, the query, and the partition until the cause is specific enough to put in a ticket. I work day to day with data engineers, backend engineers, BAs, product owners, and DevOps. English: professional working proficiency.",
     ],
-    badge: "Currently open to QA & Data roles",
-    stats: [
-      { value: "3.68", label: "GPA · Telkom University", html: false, count: 3.68 },
+    badge: "Open to QA & data quality roles",
+    facts: [
+      { value: "3.68", label: "GPA · Telkom University, Information Systems", count: 3.68 },
+      { value: "99.8%", label: "Row-level hash match across 100+ datasets at Astra", count: 99.8 },
+      { value: "35+", label: "Defects documented with root cause at Astra", count: 35 },
+      { value: "ISTQB", label: "Certified Tester Foundation Level, CTFL v4.0" },
+    ],
+    credentialsLabel: "Certifications",
+    credentials: [
       {
-        value: "99.8%",
-        label: "Row-level hash-match accuracy at Astra",
-        html: false,
-        count: 99.8,
+        issuer: "Udemy",
+        name: "Certified Tester Foundation Level (CTFL) v4.0 — course completion",
+        year: "2025",
+        credentialUrl:
+          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
       },
       {
-        value: "600+",
-        label: "Test cases across functional, API, BI & UAT",
-        html: false,
-        count: 600,
+        issuer: "BNSP",
+        name: "Associate Data Scientist — competent",
+        year: "2024",
+        credentialUrl:
+          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
       },
       {
-        value: 'R²<br><span class="asc-num-sub">0.901</span>',
-        label: "Forecasting Model Accuracy",
-        html: true,
+        issuer: "HackerRank",
+        name: "Python (Basic)",
+        year: "2026",
+        credentialUrl:
+          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
       },
       {
-        value: "35+",
-        label: "Defects Documented with Root Cause at Astra",
-        html: false,
-        count: 35,
+        issuer: "HackerRank",
+        name: "SQL (Basic)",
+        year: "2026",
+        credentialUrl:
+          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
       },
       {
-        value: "ISTQB",
-        label: "Certified Tester Foundation Level (CTFL v4.0)",
-        html: false,
+        issuer: "HackerRank",
+        name: "Java (Basic)",
+        year: "2026",
+        credentialUrl:
+          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
       },
     ],
   },
 
   experience: {
     sectionLabel: "Experience",
-    titleLines: ["Where I've Made", "an Impact"],
+    title: "Experience",
+    intro:
+      "Five roles since 2024, across banking, capital markets, automotive, FMCG, and a university lab. Open any entry for how the testing was done.",
+    disclosureLabel: "Approach & findings",
     items: [
       {
         period: "Apr 2026 — Present",
         company: "PT Astra International Tbk",
         location: "Jakarta, ID",
         role: "Product Quality Assurance",
-        description:
-          "Data-quality validation and end-to-end QA for the Auto Intelligence platform during a Microsoft Fabric and Cloudera to Google BigQuery migration across five business units (Daihatsu, Toyota, Honda, Lexus, and Business Sales Operations).",
+        current: true,
+        context:
+          "Auto Intelligence is Astra's analytics platform for five business units — Daihatsu, Toyota, Honda, Lexus, and Business Sales Operations. While it moved off Microsoft Fabric and Cloudera onto Google BigQuery, my job was to prove the data landing in BigQuery matched the source, and that the app and dashboards sitting on top of it still behaved.",
         metrics: [
-          { value: "100+", label: "Enterprise datasets validated" },
-          { value: "99.8%", label: "Row-level hash-match accuracy" },
-          { value: "1B+", label: "Rows under partition-based validation" },
-          { value: "200+", label: "SIT / UAT / regression test cases" },
+          { value: "100+", label: "Datasets validated" },
+          { value: "99.8%", label: "Row-level hash match" },
+          { value: "1B+", label: "Rows under partition validation" },
+          { value: "200+", label: "SIT / UAT / regression cases" },
         ],
-        highlights: [
-          "Validated 100+ enterprise datasets across five business units, achieving 99.8% row-level hash-match accuracy with SQL reconciliation and Python/Pandas automation",
-          "Maintained 40+ Playwright (JavaScript) automation scripts for the Auto Intelligence App, cutting flaky failures by 30% through root-cause fixes and test-data updates",
-          "Applied partition-based validation across transactional datasets up to 1B+ rows, resolving schema mismatches and duplicates — 25% fewer discrepancies and 40% faster validation queries",
-          "Tested 15+ embedded Power BI dashboards across Web, Android, and iOS in DEV, STG, and Prod-like environments",
-          "Ran SIT, UAT, regression, functional, and integration testing across 200+ test cases covering API integrations, auth flows, report rendering, filters, slicers, and refresh",
-          "Documented 35+ Jira defects for dashboard performance and API dependencies, each with reproduction steps, expected/actual results, and root cause analysis",
-          "Partnered with data engineers, backend engineers, BAs, and external vendors to drive defect resolution and release validation across 3 release cycles",
+        approach: [
+          "SQL reconciliation paired with a Python and Pandas comparison script — row counts, schema, nulls, duplicates, business keys, and row-level hashes across 100+ datasets, reaching 99.8% hash match.",
+          "Partition-based validation instead of full-table scans on transactional tables up to 1B+ rows, which made validation queries about 40% faster.",
+          "40+ Playwright scripts in JavaScript covering the Auto Intelligence App regression suite.",
+          "200+ SIT, UAT, regression, functional, and integration cases over API integrations, auth flows, report rendering, filters, slicers, and refresh.",
+          "15+ embedded Power BI dashboards checked on Web, Android, and iOS across DEV, STG, and Prod-like environments.",
         ],
-        tags: ["Python", "Pandas", "BigQuery", "SQL", "Playwright", "Power BI Embedded"],
+        findings: [
+          "Partition-level comparison surfaced schema mismatches and duplicate rows; discrepancies dropped about 25% once they were fixed.",
+          "35+ Jira defects on dashboard performance and API dependencies, each with reproduction steps, expected versus actual, and a root-cause note.",
+          "Flaky Playwright failures fell about 30% after tracing them to stale test data and timing assumptions rather than re-running them.",
+          "Defect resolution and release validation driven with data engineers, backend engineers, BAs, and external vendors across 3 release cycles.",
+        ],
+        tags: ["Python", "Pandas", "SQL", "BigQuery", "Microsoft Fabric", "Cloudera", "Playwright", "Power BI Embedded", "Jira"],
       },
       {
         period: "Dec 2025 — Apr 2026",
         company: "PT IDX Solusi Teknologi Informasi",
         location: "Jakarta Selatan, ID",
         role: "Quality Assurance Intern",
-        description:
+        context:
           "Functional and regression testing across five capital-market and enterprise systems: IDX Terminal, KPEI Administration, HRIS, SSL/SFTP, and PME.",
         metrics: [
-          { value: "80+", label: "Functional & regression test cases" },
-          { value: "6", label: "Functional defects identified" },
-          { value: "50%", label: "Ambiguous requirements cut in grooming" },
+          { value: "80+", label: "Functional & regression cases" },
+          { value: "6", label: "Functional defects found" },
+          { value: "50%", label: "Ambiguous requirements cut" },
         ],
-        highlights: [
-          "Authored and ran 80+ functional and regression test cases for IDX Terminal and HRIS, covering positive and negative scenarios from functional requirements",
-          "Groomed PRDs with developers, BAs, and UI/UX designers, reducing ambiguous and redundant requirements by up to 50% before development",
-          "Translated Functional Specification Documents into structured, traceable test scenarios",
-          "Identified six functional defects and performed defect validation, regression, and UAT across Agile sprints",
+        approach: [
+          "80+ functional and regression cases for IDX Terminal and HRIS, covering positive and negative paths derived from the functional requirements.",
+          "Functional Specification Documents translated into structured, traceable test scenarios.",
+          "PRD grooming with developers, BAs, and UI/UX designers before development started.",
+        ],
+        findings: [
+          "Six functional defects identified, then validated through defect retest, regression, and UAT across Agile sprints.",
+          "Grooming cut ambiguous and redundant requirements by up to 50% before anything was built.",
         ],
         tags: ["Functional Testing", "Regression", "FSD Analysis", "UAT", "Jira"],
       },
@@ -216,33 +230,38 @@ const portfolioData = {
         company: "PT Indivara Group",
         location: "Tangerang, ID",
         role: "Quality Assurance Intern",
-        description:
-          "QA across four Agile-delivered FMCG applications in the Bersama distribution ecosystem — Bersama App (Android), Bersama Web Monitoring (CMS), and Victory Web (Salesforce).",
+        context:
+          "QA across four Agile-delivered FMCG applications in the Bersama distribution ecosystem — Bersama App on Android, Bersama Web Monitoring (CMS), and Victory Web on Salesforce.",
         metrics: [
-          { value: "100+", label: "Functional & regression test cases" },
-          { value: "7", label: "Critical defects before production" },
+          { value: "100+", label: "Functional & regression cases" },
+          { value: "7", label: "Critical defects pre-release" },
           { value: "20+", label: "Defects tracked to closure" },
           { value: "4", label: "Agile sprints" },
         ],
-        highlights: [
-          "Developed and executed 100+ functional and regression test cases across Bersama App, Web Monitoring, and Victory Web, identifying 7 critical defects before production release",
-          "Tracked and closed 20+ Jira defects using Gherkin-based acceptance criteria",
-          "Collaborated with product owners, developers, and DevOps engineers across 4 Agile sprints",
+        approach: [
+          "100+ functional and regression cases spanning the Android app, the CMS, and the Salesforce web front end.",
+          "Gherkin acceptance criteria used as the basis for both test cases and defect reports.",
         ],
-        tags: ["Mobile Testing", "Gherkin", "Jira", "Scrum", "Manual Testing"],
+        findings: [
+          "Seven critical defects caught before the production release.",
+          "20+ Jira defects tracked to closure with product owners, developers, and DevOps engineers over 4 sprints.",
+        ],
+        tags: ["Mobile Testing", "Android", "Gherkin", "Jira", "Scrum"],
       },
       {
         period: "May 2025 — Jun 2025",
         company: "Daspro Laboratory, Telkom University",
         location: "Bandung, ID",
         role: "Teaching Assistant — Data Warehouse & BI",
-        description:
-          "Designed and delivered lab modules for the Data Warehouse and Business Intelligence course using Pentaho and SQL.",
-        metrics: [{ value: "90%+", label: "Students achieving strong grades" }],
-        highlights: [
-          "Designed lab modules, exercises, and Q&A materials for Data Warehouse and BI coursework",
-          "Guided students in building ETL and BI workflows with Pentaho and SQL",
-          "Ran practical sessions on data validation and BI analysis",
+        context:
+          "Lab modules for the Data Warehouse and Business Intelligence course, taught with Pentaho and SQL.",
+        metrics: [{ value: "90%+", label: "Students reaching strong grades" }],
+        approach: [
+          "Lab modules, exercises, and Q&A materials designed for the Data Warehouse and BI coursework.",
+          "Practical sessions on building ETL and BI workflows in Pentaho and SQL, plus data validation and BI analysis.",
+        ],
+        findings: [
+          "Over 90% of students reached strong grades on the coursework.",
         ],
         tags: ["SQL", "Pentaho", "ETL", "BI"],
       },
@@ -251,271 +270,257 @@ const portfolioData = {
         company: "PT Bank Tabungan Negara (Persero) Tbk",
         location: "Jakarta, ID",
         role: "Business Support Intern — QA & Testing",
-        description:
-          "QA for BTN's Corporate Internet Banking platform — backend services, transaction data, and business-rule logic.",
+        context:
+          "QA for BTN's Corporate Internet Banking platform: backend services, transaction data, and the business-rule logic between them.",
         metrics: [
-          { value: "60+", label: "Regression & API test cases" },
-          { value: "25+", label: "Tricentis Tosca automation modules" },
-          { value: "80%", label: "Manual regression effort reduced" },
+          { value: "60+", label: "Regression & API cases" },
+          { value: "25+", label: "Tosca automation modules" },
+          { value: "80%", label: "Manual regression effort cut" },
         ],
-        highlights: [
-          "Created and validated 60+ regression and API test cases covering 10+ banking transaction types",
-          "Built and maintained 25+ Tricentis Tosca automation modules, cutting manual regression effort by 80% per cycle",
-          "Validated backend services, transaction data, and business-rule logic across banking workflows",
-          "Prepared structured test plans and defect documentation",
+        approach: [
+          "60+ regression and API cases covering 10+ banking transaction types.",
+          "25+ Tricentis Tosca automation modules built and maintained for the regression suite.",
+          "Structured test plans and defect documentation for each cycle.",
         ],
-        tags: ["Postman", "API Testing", "Tosca", "Regression", "SQL"],
-      },
-    ],
-  },
-
-  skills: {
-    sectionLabel: "Skills & Tools",
-    title: "Technical Arsenal",
-    levelLegend: { 3: "Advanced", 2: "Working", 1: "Familiar" },
-    featured: [
-      "Functional Testing",
-      "API Testing",
-      "Mobile & Web Testing",
-      "SQL",
-      "Python",
-      "Data Validation",
-    ],
-    categories: [
-      {
-        icon: "check-circle",
-        title: "Testing & QA",
-        delayClass: "",
-        gridSpan: 1,
-        chips: [
-          { name: "Functional Testing", level: 3 },
-          { name: "End-to-End Testing", level: 2 },
-          { name: "Integration Testing", level: 2 },
-          { name: "Regression Testing", level: 3 },
-          { name: "Smoke & Sanity Testing", level: 3 },
-          { name: "SIT", level: 2 },
-          { name: "UAT", level: 3 },
-          { name: "Release Validation", level: 3 },
-          { name: "Test Case Design", level: 3 },
-          { name: "Defect Management", level: 3 },
-          { name: "Root Cause Investigation", level: 3 },
-          { name: "Agile Scrum", level: 3 },
-          { name: "SDLC", level: 2 },
-          { name: "STLC", level: 2 },
+        findings: [
+          "Automating the regression modules cut manual regression effort by about 80% per cycle.",
+          "Backend services, transaction data, and business-rule logic validated across the banking workflows.",
         ],
-      },
-      {
-        icon: "smartphone",
-        title: "Web & Mobile",
-        delayClass: "reveal-delay-1",
-        gridSpan: 1,
-        chips: [
-          { name: "Cross-Browser Web Testing", level: 3 },
-          { name: "Android", level: 2 },
-          { name: "iOS / iPadOS", level: 2 },
-          { name: "Cross-Device & Responsive Testing", level: 2 },
-          { name: "Embedded Power BI Testing", level: 2 },
-        ],
-      },
-      {
-        icon: "terminal",
-        title: "API & Backend",
-        delayClass: "reveal-delay-2",
-        gridSpan: 1,
-        chips: [
-          { name: "REST API Testing", level: 3 },
-          { name: "Postman", level: 3 },
-          { name: "JSON & HTTP Response Validation", level: 3 },
-          { name: "Auth Testing", level: 2 },
-          { name: "Network Log Analysis", level: 2 },
-          { name: "JMeter", level: 1 },
-        ],
-      },
-      {
-        icon: "monitor",
-        title: "Test Automation",
-        delayClass: "",
-        gridSpan: 1,
-        chips: [
-          { name: "Playwright (JavaScript)", level: 2 },
-          { name: "Tricentis Tosca", level: 2 },
-          { name: "Katalon Studio (Groovy)", level: 2 },
-          { name: "Selenium", level: 2 },
-          { name: "Gherkin / BDD", level: 2 },
-        ],
-      },
-      {
-        icon: "layers",
-        title: "Database & Data",
-        delayClass: "reveal-delay-1",
-        gridSpan: 1,
-        chips: [
-          { name: "SQL", level: 3 },
-          { name: "Python / Pandas", level: 3 },
-          { name: "Schema & Row-Level Validation", level: 3 },
-          { name: "Data Reconciliation", level: 3 },
-          { name: "ETL / Migration Testing", level: 3 },
-          { name: "Google BigQuery", level: 2 },
-          { name: "Microsoft Fabric", level: 2 },
-          { name: "Cloudera (Impala/Hive)", level: 2 },
-        ],
-      },
-      {
-        icon: "code",
-        title: "Programming & Tools",
-        delayClass: "reveal-delay-2",
-        gridSpan: 1,
-        chips: [
-          { name: "JavaScript", level: 2 },
-          { name: "TypeScript", level: 1 },
-          { name: "Python", level: 3 },
-          { name: "Java", level: 1 },
-          { name: "Groovy", level: 2 },
-          { name: "Git", level: 2 },
-          { name: "Jira", level: 3 },
-        ],
+        tags: ["Postman", "API Testing", "Tricentis Tosca", "Regression", "SQL"],
       },
     ],
   },
 
   projects: {
     sectionLabel: "Projects",
-    title: "Built & Validated",
+    title: "Projects",
+    intro:
+      "Things I built, and what I checked before trusting them. Repositories are linked where they're public.",
+    disclosureLabel: "Read the case study",
     items: [
       {
         featured: true,
-        eyebrow: "Final-Year Project · 2025",
+        eyebrow: "Final-year project",
         year: "2025",
-        role: "Solo build · Data & QA",
+        role: "Solo build",
         repo: "https://github.com/InsanTaufik/Aplikasi-Prediksi-Shopee",
         meta: { language: "Python", updated: "Jul 2025" },
         title: "Sales & Inventory Forecasting System",
-        description:
-          "A Streamlit web app that forecasts 12 months of product sales with an XGBoost pipeline using iterative prediction, seasonal analysis, and lag features. Data preprocessing, transformation, and automated validation scripts protect the integrity of every model input.",
-        stack: ["Python", "XGBoost", "Streamlit", "Pandas", "SQL", "Scikit-learn"],
+        summary:
+          "A Streamlit app that forecasts 12 months of product sales from Shopee transaction history, using an XGBoost pipeline with iterative prediction, lag features, and seasonal decomposition.",
+        flow: ["Sales history", "Preprocess + validate", "XGBoost pipeline", "Streamlit app"],
+        problem:
+          "A forecast is only worth acting on if the history feeding it is clean, so the input checks mattered as much as the model.",
+        approach: [
+          "Preprocessing and transformation over the raw transaction history: type coercion, missing-period handling, and lag and seasonal feature construction.",
+          "Automated data-quality checks run against every model input before training, rather than after a bad forecast appears.",
+          "Iterative prediction so each forecast month feeds the next, with accuracy measured on held-out periods rather than on the training set.",
+        ],
+        result: [
+          "R² of 0.901 and MAPE under 10% on the evaluation set.",
+          "Deployed as an interactive Streamlit app for month-by-month stock planning.",
+        ],
         metrics: [
-          { value: "0.901", label: "R² Score" },
-          { value: "<10%", label: "MAPE Error" },
+          { value: "0.901", label: "R² score" },
+          { value: "<10%", label: "MAPE" },
         ],
-        bullets: [
-          "Deployed as an interactive Streamlit app for real-time stock-forecasting decisions",
-          "Automated data-quality checks embedded to validate the forecasting pipeline",
-          "Preprocessing and validation mirror production QA methodology",
-        ],
+        stack: ["Python", "XGBoost", "Pandas", "Scikit-learn", "Streamlit", "SQL"],
       },
       {
-        featured: false,
-        eyebrow: "API Test Automation · 2025",
+        eyebrow: "API test automation",
         year: "2025",
-        role: "Solo build · API Automation",
+        role: "Solo build",
         meta: { language: "Groovy", updated: "2025" },
         title: "Invoice Management API Automation",
-        description:
-          "An automated API validation suite in Katalon Studio for authentication, invoice listing, invoice detail, and unbilled summary endpoints — covering positive and negative scenarios for HTTP status codes, JSON payloads, required and null fields, date formats, and amount business rules.",
-        stack: ["Katalon Studio", "Groovy", "REST API"],
-        bullets: [
-          "Built reusable request and retry handling through Katalon Custom Keywords",
-          "Covered auth, invoice listing/detail, and unbilled summary endpoints with positive and negative scenarios",
-          "Delivered a bug report and workflow documentation alongside the suite",
+        summary:
+          "A Katalon Studio suite covering authentication, invoice listing, invoice detail, and unbilled summary endpoints — positive and negative paths for each.",
+        flow: ["Auth token", "Invoice endpoints", "Assertions", "Bug report"],
+        problem:
+          "Four related endpoints, each needing coverage past the happy path: status codes, payload shape, nullable and required fields, date formats, and amount rules.",
+        approach: [
+          "Coverage split per endpoint across HTTP status codes, JSON payload shape, required and nullable fields, date formats, and amount business rules.",
+          "Reusable request and retry handling built as Katalon Custom Keywords so each test reads as intent rather than plumbing.",
+          "Negative cases written alongside positive ones for every endpoint, not as an afterthought.",
         ],
-        delayClass: "reveal-delay-1",
+        result: [
+          "A bug report and workflow documentation delivered with the suite so the findings outlived the run.",
+        ],
+        stack: ["Katalon Studio", "Groovy", "REST API"],
       },
       {
-        featured: false,
-        eyebrow: "Test Automation · 2026",
+        eyebrow: "Test automation",
         year: "2026",
-        role: "Playwright framework",
+        role: "Framework build",
         repo: "https://github.com/InsanTaufik/ESBTechnicalTest_Muhamad-Insan-Taufik",
         meta: { language: "TypeScript", updated: "Aug 2026" },
-        title: "End-to-End Test Automation Framework",
-        description:
-          "A maintainable Playwright + TypeScript automation suite for SauceDemo built on the Page Object Model, with reusable fixtures, utilities, and automated assertions across core user journeys.",
+        title: "End-to-End Playwright Framework",
+        summary:
+          "A Playwright and TypeScript suite for SauceDemo built on the Page Object Model, with reusable fixtures, utilities, and assertions across the core user journeys.",
+        problem:
+          "Written as a technical test, and used as a reference for how I structure a suite so it survives more than one sprint.",
+        approach: [
+          "Page Object Model to keep selectors in one place per screen.",
+          "Shared fixtures and utilities so setup is declared once rather than copied per spec.",
+        ],
         stack: ["Playwright", "TypeScript", "Page Object Model", "CI"],
       },
       {
-        featured: false,
-        eyebrow: "Full-Stack + QA · 2026",
+        eyebrow: "Full-stack + QA",
         year: "2026",
         role: "Workflow simulation",
         repo: "https://github.com/InsanTaufik/2a_Credit_Application_PDP_BCA_Finance",
         meta: { language: "TypeScript", updated: "Aug 2026" },
-        title: "Digital Credit Submission & Approval Workflow",
-        description:
-          "A production-like credit-application prototype: submission → validation → multi-level approval → back office → document generation → e-sign → auditable disbursement, with a strict server-side state machine, RBAC, and a full audit trail. Scope driven by BRD / PRD / FSD.",
+        title: "Credit Submission & Approval Workflow",
+        summary:
+          "A production-shaped credit-application prototype with a server-side state machine, role-based access control, and a full audit trail. Scope taken from BRD, PRD, and FSD.",
+        flow: [
+          "Submission",
+          "Validation",
+          "Multi-level approval",
+          "Back office",
+          "Document + e-sign",
+          "Disbursement",
+        ],
+        problem:
+          "Approval workflows break at the transitions: a state reached out of order, or a role doing something it shouldn't. Building one is a good way to learn where to point the tests.",
+        approach: [
+          "State transitions enforced server-side so a client can't skip a stage.",
+          "RBAC across submission, approval, and back-office roles.",
+          "An audit trail behind every transition, which is what makes the flow testable after the fact.",
+        ],
         stack: ["Next.js", "NestJS", "PostgreSQL", "Prisma", "Playwright", "TypeScript"],
-        delayClass: "reveal-delay-1",
       },
       {
-        featured: false,
-        eyebrow: "DevOps for QA · 2026",
+        eyebrow: "DevOps for QA",
         year: "2026",
         role: "Solo build",
         repo: "https://github.com/InsanTaufik/CI-CD-Practice",
         meta: { language: "Python", updated: "Mar 2026" },
-        title: "CI/CD Pipeline Practice — Flask API",
-        description:
-          "A minimal Flask REST API wired to a full CI/CD pipeline: pytest unit and edge-case suites, Docker staging → production promotion, GitHub Actions, feature-flag rollout, and Prometheus + Grafana observability.",
+        title: "CI/CD Pipeline — Flask API",
+        summary:
+          "A small Flask REST API wired to a full pipeline so I could see where automated tests sit in a deployment, not just in a test runner.",
+        flow: ["Commit", "pytest", "Docker staging", "Production", "Prometheus + Grafana"],
+        approach: [
+          "pytest unit and edge-case suites running as the gate before promotion.",
+          "Docker staging promoted to production through GitHub Actions, with feature-flag rollout.",
+          "Prometheus and Grafana for post-deploy observability.",
+        ],
         stack: ["Python", "Flask", "Docker", "GitHub Actions", "pytest", "Prometheus"],
       },
       {
-        featured: false,
-        eyebrow: "Coding Camp · 2025",
+        eyebrow: "Coding camp",
         year: "2025",
         role: "Mini project",
         repo: "https://github.com/InsanTaufik/CodingCamp-7Nov2025-muhamadinsantaufik",
         meta: { language: "HTML", updated: "Nov 2025" },
         title: "Personal Profile Website",
-        description:
-          "A responsive multi-page personal profile site built with vanilla HTML, CSS, and JavaScript during a 5-day RevoU coding camp.",
+        summary:
+          "A responsive multi-page profile site in vanilla HTML, CSS, and JavaScript, built during a 5-day RevoU coding camp.",
         stack: ["HTML", "CSS", "JavaScript"],
-        delayClass: "reveal-delay-1",
       },
     ],
   },
 
-  certifications: {
-    sectionLabel: "Certifications",
-    title: "Validated Expertise",
-    items: [
+  skills: {
+    sectionLabel: "Skills",
+    title: "What I work with",
+    intro:
+      "Grouped by what it's for, with where I've used it. The experience section is the evidence.",
+    groups: [
       {
-        issuer: "Udemy",
-        name: "Certified Tester Foundation Level (CTFL) v4.0 Course Completion",
-        year: "Course · 2025",
-        credentialUrl:
-          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
-        delayClass: "",
+        id: "testing",
+        icon: "check-circle",
+        title: "Testing",
+        evidence: "600+ cases across Astra, IDX, Indivara, and BTN",
+        items: [
+          "Functional",
+          "Regression",
+          "Integration",
+          "End-to-end",
+          "Smoke & sanity",
+          "SIT",
+          "UAT",
+          "Release validation",
+          "Test case design",
+          "Defect management",
+          "Root cause investigation",
+        ],
       },
       {
-        issuer: "BNSP",
-        name: "Associate Data Scientist",
-        year: "Competent · 2024",
-        credentialUrl:
-          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
-        delayClass: "reveal-delay-1",
+        id: "platforms",
+        icon: "smartphone",
+        title: "Application platforms",
+        evidence: "15+ embedded dashboards checked on Web, Android, and iOS at Astra",
+        items: [
+          "Cross-browser web",
+          "Android",
+          "iOS / iPadOS",
+          "Responsive & cross-device",
+          "Power BI Embedded",
+        ],
       },
       {
-        issuer: "HackerRank",
-        name: "Python (Basic)",
-        year: "2026",
-        credentialUrl:
-          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
-        delayClass: "reveal-delay-2",
+        id: "api",
+        icon: "terminal",
+        title: "API & backend",
+        evidence: "60+ regression and API cases over 10+ transaction types at BTN",
+        items: [
+          "REST API testing",
+          "Postman",
+          "JSON & HTTP response validation",
+          "Auth flows",
+          "Network log analysis",
+          "JMeter",
+        ],
       },
       {
-        issuer: "HackerRank",
-        name: "SQL (Basic)",
-        year: "2026",
-        credentialUrl:
-          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
-        delayClass: "reveal-delay-3",
+        id: "data",
+        icon: "layers",
+        title: "Data & ETL",
+        evidence: "100+ datasets and 1B+ rows reconciled during the BigQuery migration",
+        items: [
+          "SQL",
+          "Python / Pandas",
+          "Schema & row-level validation",
+          "Partition-based validation",
+          "Hash comparison",
+          "Data reconciliation",
+          "ETL / migration testing",
+          "Google BigQuery",
+          "Microsoft Fabric",
+          "Cloudera (Impala / Hive)",
+        ],
       },
       {
-        issuer: "HackerRank",
-        name: "Java (Basic)",
-        year: "2026",
-        credentialUrl:
-          "https://drive.google.com/drive/folders/1KEd6lMcrQ5Ege-8LnrL_rR9lywujZB47?usp=sharing",
-        delayClass: "reveal-delay-4",
+        id: "automation",
+        icon: "monitor",
+        title: "Automation",
+        evidence: "40+ Playwright scripts at Astra, 25+ Tosca modules at BTN",
+        items: [
+          "Playwright (JavaScript)",
+          "Tricentis Tosca",
+          "Katalon Studio (Groovy)",
+          "Selenium",
+          "Gherkin / BDD",
+          "pytest",
+        ],
+      },
+      {
+        id: "tooling",
+        icon: "code",
+        title: "Languages & tooling",
+        evidence: "Day-to-day across every role listed",
+        items: [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Groovy",
+          "Java",
+          "Git",
+          "Jira",
+          "Confluence",
+          "Agile Scrum",
+        ],
       },
     ],
   },
@@ -523,17 +528,13 @@ const portfolioData = {
   contact: {
     sectionLabel: "Contact",
     email: "insantaufik82@gmail.com",
-    headline: {
-      before: "Where others see code,",
-      emphasis: "I seek certainty",
-      after: "before it meets the world.",
-    },
+    headline: "Looking for my next QA role.",
     sub:
-      "I'm open to Software QA Engineer, QA Automation, and Data Quality / ETL Validation roles across web, mobile, and enterprise data platforms. Let's talk.",
+      "Software QA Engineer, QA Automation, or Data Quality / ETL Validation — web, mobile, or enterprise data platforms. Email is the fastest way to reach me.",
     links: [
       {
         href: "mailto:insantaufik82@gmail.com",
-        label: "Email Me",
+        label: "insantaufik82@gmail.com",
         icon: "mail",
         external: false,
       },

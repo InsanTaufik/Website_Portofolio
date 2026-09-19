@@ -139,15 +139,15 @@ Responsive multi-page personal profile site (vanilla HTML, CSS, JavaScript) buil
 
 ## About
 
-I hold a Bachelor of Information Systems from Telkom University with a strong academic foundation (GPA 3.68/4.00). My professional journey spans banking, capital markets, automotive, FMCG, and enterprise data platforms—where I've developed expertise in:
+I hold a Bachelor of Information Systems from Telkom University (GPA 3.68/4.00). Since 2024 I've
+tested in banking, capital markets, automotive, FMCG, and enterprise data platforms. Day to day
+that means:
 
-- Breaking complex systems into testable components and identifying edge cases
-- Designing clear, maintainable test documentation and process improvements
-- Collaborating effectively with developers, product managers, and data engineers
-- Writing Python scripts for automation and data validation at scale
-- Analyzing root causes and proposing systematic solutions
-
-I believe quality is not a phase—it's a mindset embedded in every stage of development.
+- Breaking a system into testable components and working out where it is most likely to break
+- Writing test documentation that someone else can pick up and run
+- Reconciling data with SQL and Python/Pandas at row and partition level
+- Tracing a defect back far enough that the ticket names a cause, not a symptom
+- Working with developers, product owners, BAs, data engineers, and DevOps
 
 ---
 
@@ -174,50 +174,81 @@ This website includes detailed project breakdowns, technical stack overviews, an
 ## Repository Structure
 
 ```
-Website_Portofolio/
-├── index.html                    # Main portfolio page
+portfolio/
+├── index.html          # Document shell: metadata, landmarks, empty section roots
 ├── css/
-│   └── styles.css               # Portfolio styling
+│   └── styles.css      # Design tokens + components. One file, no build step.
 ├── js/
-│   ├── data.js                  # Portfolio content (single source of truth)
-│   └── main.js                  # Page rendering and interactions
+│   ├── data.js         # All content (portfolioData) — the only file to edit for copy
+│   └── main.js         # Renders data.js into the shell, then wires interactions
 ├── assets/
-│   └── cv/                      # CV PDF
-└── README.md                    # This file
+│   ├── cv/             # CV PDF (linked from the hero, nav and mobile menu)
+│   ├── icons/          # Favicon
+│   └── og/             # Social preview card (1200x630)
+└── README.md
 ```
+
+### How the styling is organised
+
+Colour is expressed through semantic tokens — `--fg`, `--fg-muted`, `--surface`,
+`--surface-2`, `--line`, `--accent`. Light values are declared on `:root`; the dark
+sections (`#projects`, `#contact`, `.site-footer`) redeclare the same token names.
+Components only ever read tokens, so a card, metric band or disclosure renders correctly
+on either surface with no per-section overrides.
 
 ---
 
 ## Updating Content
 
-All content lives in `js/data.js` (`portfolioData`). Edit that file only — no HTML/CSS
-changes are needed for content updates. The renderer degrades gracefully, so every field
-below is **optional**: add it to enrich a section, omit it and nothing breaks.
+All content lives in `js/data.js` (`portfolioData`). Edit that file only — no HTML or CSS
+changes are needed for content updates. Optional fields degrade gracefully: omit one and the
+renderer skips that part of the card.
 
-| Field | Where | Purpose |
-|-------|-------|---------|
-| `hero.stats[].count` / `about.stats[].count` | numeric | animates the counter to this number on scroll-in |
-| `experience.items[].metrics` | `[{ value, label }]` | highlighted stat chips at the top of the role card |
-| `skills.featured` | `["Skill name", ...]` | pills shown in the strip above the skill grid |
-| `skills.levelLegend` | `{ "3": "Advanced", "2": "Working", "1": "Familiar" }` | legend under the featured strip |
-| `skills.categories[].chips[]` | string **or** `{ name, level: 1\|2\|3 }` | `level` renders proficiency dots |
-| `projects.items[].year` / `.role` | string | shown in the card metadata row |
-| `projects.items[].repo` | GitHub URL | adds a "View repository ↗" link |
-| `projects.items[].links` | `[{ label, href }]` | extra links (live demo, case study) |
+| Field | Shape | Effect |
+|-------|-------|--------|
+| `hero.layers[]` | `{ id, label, scope, detail }` | a row in the hero layer diagram |
+| `hero.evidence[]` | `{ value, label, count? }` | the figures strip below the hero; `count` animates it |
+| `about.facts[].count` | number | animates the fact counter on scroll-in |
+| `experience.items[].context` | string | the one-paragraph summary shown before the disclosure |
+| `experience.items[].metrics` | `[{ value, label }]` | the metric band at the top of the role |
+| `experience.items[].approach` / `.findings` | `[string]` | the two blocks inside "Approach & findings" |
+| `experience.items[].current` | boolean | adds the pulsing status dot to the period |
+| `projects.items[].featured` | boolean | promotes the card to a full-width two-column layout |
+| `projects.items[].flow` | `["Source", "Step", "Target"]` | renders the arrow pipeline diagram |
+| `projects.items[].problem` / `.approach` / `.result` | string / `[string]` / `[string]` | the case-study disclosure |
+| `projects.items[].metrics` | `[{ value, label }]` | metric band beside the summary |
+| `projects.items[].repo` / `.links` | URL / `[{ label, href }]` | outbound links on the card |
 | `projects.items[].meta` | `{ language, updated }` | baked GitHub metadata (see below) |
-| `certifications.items[].credentialUrl` | URL | makes the row a link to the credential |
+| `skills.groups[]` | `{ id, icon, title, evidence, items[] }` | `evidence` is the accented line under the heading |
+| `about.credentials[].credentialUrl` | URL | makes the certification row a link |
 | `contact.email` | address | used by the "Copy email" button |
+
+Icons are referenced by name (`icon: "layers"`); the available names are the keys of `ICON`
+in `js/main.js`.
 
 ### Refreshing GitHub project metadata
 
-After adding `repo` URLs, bake in language + last-updated with the GitHub CLI:
+After adding `repo` URLs, bake in language and last-updated:
 
 ```bash
 gh repo view <owner>/<repo> --json name,description,primaryLanguage,pushedAt
 ```
 
-Then set `meta` on that project, e.g.
-`meta: { language: "Python", updated: "Feb 2026" }`.
+Then set `meta` on that project, e.g. `meta: { language: "Python", updated: "Feb 2026" }`.
+
+---
+
+## Accessibility & motion
+
+- Semantic landmarks (`header` / `nav` / `main` / `footer`), one `h1`, no heading-level skips
+- Every text/background pair on the page meets WCAG AA contrast
+- Progressive disclosure uses native `<details>`, so it is keyboard-operable, findable via
+  browser find-in-page, and deep-linkable
+- Focus rings are accent-coloured and re-map per surface (deep blue on light, pale blue on dark)
+- The mobile menu traps focus while open and returns focus to its trigger on close
+- `prefers-reduced-motion: reduce` disables reveals, the scroll-progress sweep and the
+  disclosure size transition; the availability dot is kept because it carries meaning and
+  moves nothing on the page
 
 ---
 

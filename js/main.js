@@ -1,475 +1,376 @@
+/**
+ * Renders portfolioData into the shell in index.html, then wires the
+ * interaction layer.
+ *
+ * Motion policy: entrance reveals run once via IntersectionObserver,
+ * the scroll-progress bar is a native CSS scroll timeline where the
+ * browser has one, and everything non-essential is dropped under
+ * prefers-reduced-motion.
+ */
 (function () {
   "use strict";
 
-  /* ── Environment guards ── */
-  const mqFine = window.matchMedia("(pointer: fine)");
   const mqReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const prefersFine = () => mqFine.matches;
-  const prefersReduced = () => mqReduced.matches;
+  const reduced = () => mqReduced.matches;
+  const $ = (sel) => document.querySelector(sel);
+  const byId = (id) => document.getElementById(id);
 
-  const SKILL_SVG = {
-    "check-circle":
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-    monitor:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
-    code:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-    users:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
-    layers:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
-    smartphone:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>',
-    terminal:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="6 9 10 12 6 15"/><line x1="12" y1="15" x2="17" y2="15"/></svg>',
-  };
-
-  const CTA_ICONS = {
-    "chevron-down":
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>',
-    download:
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  /* ── Icons (stroke, 1.5–2px, single family) ──────────────── */
+  const ICON = {
+    "arrow-down":
+      '<svg viewBox="0 0 24 24" stroke-width="2" data-nudge="down" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
     "arrow-right":
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
-  };
-
-  const CONTACT_ICONS = {
+      '<svg viewBox="0 0 24 24" stroke-width="2" data-nudge="right" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    download:
+      '<svg viewBox="0 0 24 24" stroke-width="2" data-nudge="down" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+    "chevron-down":
+      '<svg class="disclosure-icon" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>',
+    external:
+      '<svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>',
     mail:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+      '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
     linkedin:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
+      '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-11h4v1.5A4 4 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
     github:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>',
+      '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
     copy:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
+      '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    "check-circle":
+      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>',
+    smartphone:
+      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>',
+    terminal:
+      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="6 9 10 12 6 15"/><line x1="12" y1="15" x2="17" y2="15"/></svg>',
+    layers:
+      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>',
+    monitor:
+      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+    code:
+      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
   };
 
-  const ARROW_UPRIGHT =
-    '<svg viewBox="0 0 24 24" stroke-width="1.6" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>';
-
-  /** @type {IntersectionObserver | null} */
-  let revealObserver = null;
-
-  function escapeHtml(str) {
-    return String(str)
+  /* ── Helpers ─────────────────────────────────────────────── */
+  function esc(s) {
+    return String(s == null ? "" : s)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
-  function tagsHtml(tags, className) {
-    return tags
-      .map((t) => `<span class="${className}">${escapeHtml(t)}</span>`)
-      .join("");
+  /** Renders the final value now; initCounters() animates up to it later. */
+  function countAttrs(item) {
+    if (item.count == null) return "";
+    return ` data-count="${item.count}" data-final="${esc(item.value)}"`;
   }
 
-  function normalizeChip(c) {
-    return typeof c === "string" ? { name: c } : c;
+  function downloadAttrs(item) {
+    if (!item.download) return "";
+    return ` download${item.downloadName ? '="' + esc(item.downloadName) + '"' : ""}`;
   }
 
-  function chipHtml(chip, extraClass, interactive) {
-    const c = normalizeChip(chip);
-    const lvl = Number(c.level);
-    const hasLevel = lvl >= 1 && lvl <= 3;
-    const dots = hasLevel
-      ? `<span class="chip-dots" aria-hidden="true">${[1, 2, 3]
-          .map(
-            (i) =>
-              `<span class="chip-dot${i <= lvl ? " is-on" : ""}"></span>`
-          )
-          .join("")}</span>`
-      : "";
-    const lvlAttr = hasLevel ? ` data-level="${lvl}"` : "";
-    const lvlName = hasLevel
-      ? ` title="${escapeHtml(c.name)} — proficiency ${lvl} of 3"`
-      : "";
-    const interact = interactive ? ' tabindex="0" role="button"' : "";
-    return `<span class="chip${
-      extraClass ? " " + extraClass : ""
-    }"${lvlAttr}${lvlName}${interact}>${escapeHtml(c.name)}${dots}</span>`;
+  function tags(list) {
+    if (!Array.isArray(list) || !list.length) return "";
+    return `<ul class="tag-row">${list
+      .map((t) => `<li class="tag">${esc(t)}</li>`)
+      .join("")}</ul>`;
   }
 
-  /* ── Counter attributes helper ──
-     Renders the final value now; initCounters() animates from 0 on scroll-in. */
-  function counterAttrs(item) {
-    if (item.count === undefined || item.count === null) return "";
-    return ` data-count="${item.count}" data-value="${escapeHtml(item.value)}"`;
+  function checklist(list) {
+    if (!Array.isArray(list) || !list.length) return "";
+    return `<ul class="checklist">${list
+      .map((x) => `<li>${esc(x)}</li>`)
+      .join("")}</ul>`;
   }
 
+  function metricBand(list) {
+    if (!Array.isArray(list) || !list.length) return "";
+    return `<div class="metrics">${list
+      .map(
+        (m) =>
+          `<div class="metric"><span class="metric-value">${esc(
+            m.value
+          )}</span><span class="metric-label">${esc(m.label)}</span></div>`
+      )
+      .join("")}</div>`;
+  }
+
+  /** Source → step → target chain. Arrows are CSS-only and decorative. */
+  function flowDiagram(nodes, label) {
+    if (!Array.isArray(nodes) || nodes.length < 2) return "";
+    return `<ol class="flow" aria-label="${esc(label)}">${nodes
+      .map((n) => `<li><span class="flow-node">${esc(n)}</span></li>`)
+      .join("")}</ol>`;
+  }
+
+  function sectionHead(label, titleId, title, intro) {
+    return `
+      <header class="section-head">
+        <p class="section-label reveal">${esc(label)}</p>
+        <h2 class="section-title reveal" data-delay="1" id="${titleId}">${esc(
+      title
+    )}</h2>
+        ${
+          intro
+            ? `<p class="section-intro reveal" data-delay="2">${esc(intro)}</p>`
+            : ""
+        }
+      </header>`;
+  }
+
+  function detailBlock(heading, items) {
+    if (!Array.isArray(items) || !items.length) return "";
+    return `<div class="detail-block"><h4>${esc(heading)}</h4>${checklist(
+      items
+    )}</div>`;
+  }
+
+  function disclosure(summaryLabel, bodyHtml) {
+    if (!bodyHtml) return "";
+    return `
+      <details class="disclosure">
+        <summary>${ICON["chevron-down"]}${esc(summaryLabel)}</summary>
+        <div class="disclosure-body">${bodyHtml}</div>
+      </details>`;
+  }
+
+  /* ── Renderers ───────────────────────────────────────────── */
   function renderNav() {
     const { meta, nav } = portfolioData;
-    const desktop = nav.links
+    const items = nav.links
       .map(
         (l) =>
-          `<li><a href="${escapeHtml(l.href)}" data-section="${escapeHtml(
+          `<li><a class="nav-link" href="${esc(l.href)}" data-section="${esc(
             l.href.slice(1)
-          )}">${escapeHtml(l.label)}</a></li>`
+          )}">${esc(l.label)}</a></li>`
       )
       .join("");
-    document.getElementById("nav-root").innerHTML = `
-      <a href="#hero" class="nav-logo">${escapeHtml(meta.navLogo)}<span>.</span></a>
-      <ul class="nav-links">${desktop}</ul>
-      <a href="${escapeHtml(nav.cta.href)}" class="nav-cta">${escapeHtml(
-      nav.cta.label
-    )}</a>
-      <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu-root">
+
+    byId("nav-root").innerHTML = `
+      <a href="#hero" class="brand">${esc(meta.navLogo)}<span>.</span></a>
+      <nav class="nav-primary" aria-label="Primary"><ul class="nav-list">${items}</ul></nav>
+      <a class="nav-cta" href="${esc(nav.cta.href)}"${downloadAttrs(
+      nav.cta
+    )}>${ICON.download}${esc(nav.cta.label)}</a>
+      <button class="hamburger" id="hamburger" type="button"
+              aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
         <span></span><span></span><span></span>
       </button>`;
 
-    document.getElementById("mobile-menu-root").innerHTML = nav.mobileLinks
+    const mobileItems = nav.links
       .map(
-        (l, i) =>
-          `<a href="${escapeHtml(l.href)}" data-section="${escapeHtml(
-            l.href.slice(1)
-          )}" style="--mi:${i}">${escapeHtml(l.label)}</a>`
+        (l) =>
+          `<a href="${esc(l.href)}" data-section="${esc(l.href.slice(1))}">${esc(
+            l.label
+          )}</a>`
       )
       .join("");
-  }
-
-  function heroNameHtml(lines) {
-    return lines
-      .map((line) => {
-        const inner = escapeHtml(line.text);
-        return line.emphasis ? `<em>${inner}</em>` : inner;
-      })
-      .join("<br>");
-  }
-
-  function heroCtasHtml(ctas) {
-    return ctas
-      .map((c) => {
-        const icon = CTA_ICONS[c.icon] || "";
-        const cls = c.variant === "primary" ? "btn-primary" : "btn-outline";
-        const dl = c.download
-          ? ` download${
-              c.downloadName ? `="${escapeHtml(c.downloadName)}"` : ""
-            } rel="noopener"`
-          : "";
-        return `<a href="${escapeHtml(c.href)}" class="${cls} btn-magnetic"${dl}><span class="btn-label">${escapeHtml(
-          c.label
-        )}</span><span class="btn-icon">${icon}</span></a>`;
-      })
-      .join("");
-  }
-
-  function terminalHtml(t) {
-    const pairs = t.pairs
-      .map(
-        (p) =>
-          `<div><span class="t-key">${escapeHtml(
-            p.key
-          )}</span> <span class="t-comment">=</span> <span class="t-val">${p.value}</span></div>`
-      )
-      .join("");
-    const skillRows = t.skills.map((s) => `<div>&nbsp; ${s},</div>`).join("");
-    const statusValClass = t.statusLine.valueClass || "t-val";
-    return `
-      <div class="terminal-body">
-        <div class="t-comment">${escapeHtml(t.comment)}</div>
-        <br>
-        ${pairs}
-        <br>
-        <div class="t-comment">${escapeHtml(t.skillsComment)}</div>
-        <div><span class="t-key">skills</span> <span class="t-comment">=</span> [</div>
-        ${skillRows}
-        <div>]</div>
-        <br>
-        <div class="t-comment">${escapeHtml(t.statusComment)}</div>
-        <div><span class="t-key">${escapeHtml(
-          t.statusLine.key
-        )}</span> <span class="t-comment">=</span> <span class="${statusValClass}">${
-      t.statusLine.value
-    }</span></div>
-        <div><span class="t-key">run</span>(<span class="t-val">profile</span>) <span class="t-cursor"></span></div>
-      </div>`;
+    byId("mobile-menu").innerHTML =
+      mobileItems +
+      `<a href="${esc(nav.cta.href)}"${downloadAttrs(
+        nav.cta
+      )}>Download CV</a>`;
   }
 
   function renderHero() {
     const h = portfolioData.hero;
-    document.getElementById("hero-root").innerHTML = `
-      <div class="hero-left">
-        <div class="hero-eyebrow hero-anim">${escapeHtml(h.eyebrow)}</div>
-        <h1 class="hero-name hero-anim">${heroNameHtml(h.nameLines)}</h1>
-        <div class="hero-role hero-anim">${escapeHtml(h.role)}</div>
-        <p class="hero-tagline hero-anim">
-          <strong>${escapeHtml(h.tagline.lead)}</strong>${escapeHtml(
-      h.tagline.rest
-    )}
+
+    const ctas = h.ctas
+      .map(
+        (c) =>
+          `<a class="btn btn--${c.variant === "primary" ? "primary" : "outline"}"
+              href="${esc(c.href)}"${downloadAttrs(c)}>${esc(c.label)}${
+            ICON[c.icon] || ""
+          }</a>`
+      )
+      .join("");
+
+    const layers = h.layers
+      .map(
+        (l) => `
+        <li class="layer">
+          <span class="layer-rail" aria-hidden="true"><span class="layer-node"></span></span>
+          <span class="layer-text">
+            <span class="layer-label">${esc(l.label)}</span>
+            <span class="layer-scope">${esc(l.scope)}</span>
+            <span class="layer-detail">${esc(l.detail)}</span>
+          </span>
+        </li>`
+      )
+      .join("");
+
+    byId("hero-root").innerHTML = `
+      <div class="hero-main">
+        <p class="hero-status reveal">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>${esc(h.status)}</span>
+          <span class="hero-status-sep" aria-hidden="true">/</span>
+          <span>${esc(h.location)}</span>
         </p>
-        <div class="hero-ctas hero-anim">${heroCtasHtml(h.ctas)}</div>
-        <div class="hero-stats hero-anim">
-          ${h.stats
-            .map(
-              (s) =>
-                `<div class="stat-item"><div class="stat-num"${counterAttrs(
-                  s
-                )}>${escapeHtml(s.value)}</div><div class="stat-label">${escapeHtml(
-                  s.label
-                )}</div></div>`
-            )
-            .join("")}
-        </div>
+        <h1 id="hero-heading" class="reveal" data-delay="1">
+          <span class="hero-name">${esc(h.name)}</span>
+          <span class="hero-role">${esc(h.role)}</span>
+        </h1>
+        <p class="hero-summary reveal" data-delay="2">${esc(h.summary)}</p>
+        <div class="hero-ctas reveal" data-delay="3">${ctas}</div>
       </div>
-      <div class="hero-visual hero-anim">
-        <div class="hero-terminal" data-parallax="0.02">
-          <div class="terminal-bar">
-            <div class="terminal-dot"></div>
-            <div class="terminal-dot"></div>
-            <div class="terminal-dot"></div>
-            <span class="terminal-title">${escapeHtml(h.terminal.filename)}</span>
-          </div>
-          ${terminalHtml(h.terminal)}
+
+      <aside class="layer-stack reveal" data-delay="2" aria-labelledby="layers-caption">
+        <div class="layer-stack-head">
+          <span class="mono-label" id="layers-caption">${esc(h.layersCaption)}</span>
+          <span class="mono-label">${h.layers.length} layers</span>
         </div>
+        <ol class="layer-list">${layers}</ol>
+      </aside>`;
+  }
+
+  function renderEvidence() {
+    const items = portfolioData.hero.evidence;
+    byId("evidence-root").innerHTML = `
+      <div class="evidence-strip reveal">
+        ${items
+          .map(
+            (e) =>
+              `<div class="evidence-item"><span class="evidence-value"${countAttrs(
+                e
+              )}>${esc(e.value)}</span><span class="evidence-label">${esc(
+                e.label
+              )}</span></div>`
+          )
+          .join("")}
       </div>`;
-  }
-
-  function renderStrengths() {
-    const items = portfolioData.strengths;
-    // Repeat enough times that the -50% marquee loop is always seamless.
-    const repeats = items.length < 8 ? 4 : 2;
-    let out = [];
-    for (let i = 0; i < repeats; i++) out = out.concat(items);
-    document.getElementById("strengths-track").innerHTML = out
-      .map((s) => `<span class="strength-item">${escapeHtml(s)}</span>`)
-      .join("");
-  }
-
-  function renderAbout() {
-    const a = portfolioData.about;
-    const paras = a.paragraphs
-      .map(
-        (p, i) =>
-          `<p class="reveal reveal-delay-${Math.min(i + 1, 4)}">${p}</p>`
-      )
-      .join("");
-    const stats = a.stats
-      .map((s, i) => {
-        const inner = s.html ? s.value : escapeHtml(s.value);
-        const num = s.html
-          ? `<div class="asc-num">${inner}</div>`
-          : `<div class="asc-num"${counterAttrs(s)}>${inner}</div>`;
-        return `<div class="about-stat-card reveal reveal-delay-${Math.min(
-          i + 1,
-          4
-        )}">${num}<div class="asc-label">${escapeHtml(s.label)}</div></div>`;
-      })
-      .join("");
-    document.getElementById("about-root").innerHTML = `
-      <div class="section-label reveal">${escapeHtml(a.sectionLabel)}</div>
-      <div class="about-grid">
-        <div>
-          <h2 class="section-title reveal">${a.titleLines
-            .map((line) => `${escapeHtml(line)}`)
-            .join("<br>")}</h2>
-          <div class="about-bio">${paras}</div>
-          <div class="open-badge reveal reveal-delay-2">${escapeHtml(a.badge)}</div>
-        </div>
-        <div>
-          <div class="about-stats-grid">${stats}</div>
-        </div>
-      </div>`;
-  }
-
-  function metricsHtml(metrics) {
-    if (!Array.isArray(metrics) || !metrics.length) return "";
-    return `<div class="tl-metrics">${metrics
-      .map(
-        (m) =>
-          `<div class="tl-metric"><span class="tl-metric-val">${escapeHtml(
-            m.value
-          )}</span><span class="tl-metric-label">${escapeHtml(
-            m.label
-          )}</span></div>`
-      )
-      .join("")}</div>`;
   }
 
   function renderExperience() {
     const exp = portfolioData.experience;
-    const items = exp.items
-      .map(
-        (job) => `
-      <div class="tl-item reveal">
-        <div class="tl-meta">
-          <div class="tl-date">${escapeHtml(job.period)}</div>
-          <div class="tl-company">${escapeHtml(job.company)}</div>
-          <div class="tl-location">${escapeHtml(job.location)}</div>
-        </div>
-        <div class="tl-line"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-role">${escapeHtml(job.role)}</div>
-          <p class="tl-desc">${escapeHtml(job.description)}</p>
-          ${metricsHtml(job.metrics)}
-          <ul class="tl-bullets">
-            ${job.highlights.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}
-          </ul>
-          <div class="tl-tags">${tagsHtml(job.tags, "tl-tag")}</div>
-        </div>
-      </div>`
-      )
-      .join("");
-    document.getElementById("experience-root").innerHTML = `
-      <div class="section-label reveal">${escapeHtml(exp.sectionLabel)}</div>
-      <h2 class="section-title reveal">${exp.titleLines
-        .map((l) => escapeHtml(l))
-        .join("<br>")}</h2>
-      <div class="timeline">${items}</div>`;
-  }
+    const roles = exp.items
+      .map((job) => {
+        const body =
+          detailBlock("Approach", job.approach) +
+          detailBlock("Findings", job.findings) +
+          tags(job.tags);
 
-  function renderSkills() {
-    const s = portfolioData.skills;
-
-    // Featured strip: match names against category chips to inherit their level.
-    let featuredHtml = "";
-    if (Array.isArray(s.featured) && s.featured.length) {
-      const lookup = {};
-      s.categories.forEach((cat) =>
-        cat.chips.forEach((c) => {
-          const nc = normalizeChip(c);
-          lookup[nc.name] = nc;
-        })
-      );
-      featuredHtml = `<div class="skills-featured reveal">${s.featured
-        .map((name) => chipHtml(lookup[name] || { name }, "chip-featured", false))
-        .join("")}</div>`;
-    }
-
-    let legendHtml = "";
-    if (s.levelLegend) {
-      legendHtml = `<div class="skills-legend reveal" aria-hidden="true">${[3, 2, 1]
-        .map((lvl) => {
-          const label = s.levelLegend[lvl] || s.levelLegend[String(lvl)];
-          if (!label) return "";
-          const dots = [1, 2, 3]
-            .map(
-              (i) =>
-                `<span class="chip-dot${i <= lvl ? " is-on" : ""}"></span>`
-            )
-            .join("");
-          return `<span class="skills-legend-item"><span class="chip-dots">${dots}</span>${escapeHtml(
-            label
-          )}</span>`;
-        })
-        .join("")}</div>`;
-    }
-
-    const cats = s.categories
-      .map((cat) => {
-        const wide = cat.gridSpan === 2 ? " skill-category--wide" : "";
-        const svg = SKILL_SVG[cat.icon] || SKILL_SVG["check-circle"];
         return `
-      <div class="skill-category spotlight reveal ${cat.delayClass}${wide}">
-        <div class="skill-cat-icon">${svg}</div>
-        <div class="skill-cat-title">${escapeHtml(cat.title)}</div>
-        <div class="skill-chips">${cat.chips
-          .map((c) => chipHtml(c, "", true))
-          .join("")}</div>
-      </div>`;
+        <article class="role reveal">
+          <div class="role-meta">
+            <p class="role-period">${
+              job.current
+                ? '<span class="status-dot" aria-hidden="true"></span>'
+                : ""
+            }${esc(job.period)}</p>
+            <p class="role-company">${esc(job.company)}</p>
+            <p class="role-location">${esc(job.location)}</p>
+          </div>
+          <div class="role-body">
+            <h3 class="role-title">${esc(job.role)}</h3>
+            <p class="role-context">${esc(job.context)}</p>
+            ${metricBand(job.metrics)}
+            ${disclosure(exp.disclosureLabel, body)}
+          </div>
+        </article>`;
       })
       .join("");
 
-    document.getElementById("skills-root").innerHTML = `
-      <div class="section-label reveal">${escapeHtml(s.sectionLabel)}</div>
-      <h2 class="section-title reveal">${escapeHtml(s.title)}</h2>
-      ${featuredHtml}
-      ${legendHtml}
-      <div class="skills-grid">${cats}</div>`;
+    byId("experience-root").innerHTML =
+      sectionHead(exp.sectionLabel, "experience-heading", exp.title, exp.intro) +
+      `<div class="timeline">${roles}</div>`;
   }
 
-  function projectMetaHtml(proj) {
-    const bits = [];
-    if (proj.year) bits.push(escapeHtml(proj.year));
-    if (proj.role) bits.push(escapeHtml(proj.role));
-    if (proj.meta && proj.meta.language) bits.push(escapeHtml(proj.meta.language));
-    if (proj.meta && proj.meta.updated)
-      bits.push("Updated " + escapeHtml(proj.meta.updated));
-    if (!bits.length) return "";
-    return `<div class="project-meta">${bits
-      .map((b) => `<span>${b}</span>`)
-      .join('<span class="project-meta-sep">·</span>')}</div>`;
-  }
-
-  function projectLinksHtml(proj) {
+  function projectLinks(p) {
     const links = [];
-    if (proj.repo)
-      links.push({ label: "View repository", href: proj.repo });
-    if (Array.isArray(proj.links))
-      proj.links.forEach((l) => {
-        if (l && l.href) links.push(l);
-      });
+    if (p.repo) links.push({ label: "Repository", href: p.repo });
+    if (Array.isArray(p.links)) p.links.forEach((l) => l && l.href && links.push(l));
     if (!links.length) return "";
     return `<div class="project-links">${links
       .map(
         (l) =>
-          `<a href="${escapeHtml(
+          `<a class="text-link" href="${esc(
             l.href
-          )}" class="project-link" target="_blank" rel="noopener noreferrer">${escapeHtml(
-            l.label
-          )}${ARROW_UPRIGHT}</a>`
+          )}" target="_blank" rel="noopener noreferrer">${esc(l.label)}${
+            ICON.external
+          }</a>`
       )
       .join("")}</div>`;
   }
 
-  function renderProjects() {
-    const p = portfolioData.projects;
-    const cards = p.items
-      .map((proj) => {
-        const stack = tagsHtml(proj.stack, "stack-tag");
-        const delay = proj.delayClass ? ` ${proj.delayClass}` : "";
-        const meta = projectMetaHtml(proj);
-        const projLinks = projectLinksHtml(proj);
-        if (proj.featured) {
-          const metrics = proj.metrics
-            .map(
-              (m) =>
-                `<div class="metric-item"><div class="metric-val">${escapeHtml(
-                  m.value
-                )}</div><div class="metric-label">${escapeHtml(
-                  m.label
-                )}</div></div>`
-            )
-            .join("");
-          const bullets = proj.bullets
-            .map((b) => `<li>${escapeHtml(b)}</li>`)
-            .join("");
-          return `
-      <div class="project-card featured spotlight reveal">
-        <div class="project-left">
-          <div class="project-eyebrow">${escapeHtml(proj.eyebrow)}</div>
-          <div class="project-title">${escapeHtml(proj.title)}</div>
-          ${meta}
-          <p class="project-desc">${escapeHtml(proj.description)}</p>
-          <div class="project-stack">${stack}</div>
-          ${projLinks}
-        </div>
-        <div class="project-right">
-          <div class="project-metrics">${metrics}</div>
-          <ul class="tl-bullets">${bullets}</ul>
-        </div>
-      </div>`;
-        }
-        return `
-      <div class="project-card spotlight reveal${delay}">
-        <div class="project-eyebrow">${escapeHtml(proj.eyebrow)}</div>
-        <div class="project-title">${escapeHtml(proj.title)}</div>
-        ${meta}
-        <p class="project-desc">${escapeHtml(proj.description)}</p>
-        <div class="project-stack">${stack}</div>
-        ${projLinks}
-      </div>`;
-      })
-      .join("");
-    document.getElementById("projects-root").innerHTML = `
-      <div class="section-label reveal">${escapeHtml(p.sectionLabel)}</div>
-      <h2 class="section-title reveal">${escapeHtml(p.title)}</h2>
-      <div class="projects-grid">${cards}</div>`;
+  function projectEyebrow(p) {
+    const bits = [p.eyebrow, p.year, p.role];
+    if (p.meta && p.meta.language) bits.push(p.meta.language);
+    if (p.meta && p.meta.updated) bits.push("Updated " + p.meta.updated);
+    return `<p class="project-eyebrow">${bits
+      .filter(Boolean)
+      .map((b) => `<span>${esc(b)}</span>`)
+      .join('<span class="sep" aria-hidden="true">/</span>')}</p>`;
   }
 
-  /* Issuer monogram — derived from the issuer name so it can never mismatch.
-     Short acronyms (≤4 chars) render whole; camel-case names use their capitals;
-     everything else falls back to the first two letters. */
-  function certMonogram(issuer) {
+  function renderProjects() {
+    const pr = portfolioData.projects;
+    const cards = pr.items
+      .map((p) => {
+        const caseBody =
+          (p.problem
+            ? `<div class="detail-block"><h4>Problem</h4><p class="project-summary">${esc(
+                p.problem
+              )}</p></div>`
+            : "") +
+          detailBlock("Approach", p.approach) +
+          detailBlock("Result", p.result);
+
+        const aside =
+          flowDiagram(p.flow, "Pipeline for " + p.title) + metricBand(p.metrics);
+
+        return `
+        <article class="project card card--interactive reveal${
+          p.featured ? " project--featured" : ""
+        }">
+          <div class="project-head">
+            ${projectEyebrow(p)}
+            <h3 class="project-title">${esc(p.title)}</h3>
+            <p class="project-summary">${esc(p.summary)}</p>
+          </div>
+          ${aside ? `<div class="project-aside">${aside}</div>` : ""}
+          ${tags(p.stack)}
+          ${disclosure(pr.disclosureLabel, caseBody)}
+          ${projectLinks(p)}
+        </article>`;
+      })
+      .join("");
+
+    byId("projects-root").innerHTML =
+      sectionHead(pr.sectionLabel, "projects-heading", pr.title, pr.intro) +
+      `<div class="projects-grid">${cards}</div>`;
+  }
+
+  function renderSkills() {
+    const s = portfolioData.skills;
+    const groups = s.groups
+      .map(
+        (g, i) => `
+      <div class="skill-group reveal" data-delay="${Math.min(i % 3, 3)}">
+        <div class="skill-group-head">
+          <span class="skill-icon" aria-hidden="true">${
+            ICON[g.icon] || ICON["check-circle"]
+          }</span>
+          <h3 class="skill-group-title">${esc(g.title)}</h3>
+        </div>
+        <p class="skill-evidence">${esc(g.evidence)}</p>
+        <ul class="skill-items">${g.items
+          .map((it) => `<li class="tag">${esc(it)}</li>`)
+          .join("")}</ul>
+      </div>`
+      )
+      .join("");
+
+    byId("skills-root").innerHTML =
+      sectionHead(s.sectionLabel, "skills-heading", s.title, s.intro) +
+      `<div class="skills-grid">${groups}</div>`;
+  }
+
+  /* Issuer monogram, derived from the name so it can never mismatch.
+     Short acronyms (≤4 chars) render whole; camel-case names use their
+     capitals; anything else falls back to the first two letters. */
+  function monogram(issuer) {
     const s = String(issuer || "").trim();
     if (!s) return { text: "•", acronym: false };
     if (s.length <= 4) return { text: s.toUpperCase(), acronym: true };
@@ -479,169 +380,179 @@
     return { text: s.slice(0, 2).toUpperCase(), acronym: false };
   }
 
-  function renderCertifications() {
-    const c = portfolioData.certifications;
-    const rows = c.items
-      .map((cert, i) => {
-        const idx = String(i + 1).padStart(2, "0");
-        const mono = certMonogram(cert.issuer);
-        const iconMarkup = `<span class="cert-icon${
-          mono.acronym ? " cert-icon--acronym" : ""
-        }" aria-hidden="true">${escapeHtml(mono.text)}</span>`;
+  function renderAbout() {
+    const a = portfolioData.about;
+
+    const facts = a.facts
+      .map(
+        (f) =>
+          `<div class="fact"><span class="fact-value"${countAttrs(f)}>${esc(
+            f.value
+          )}</span><span class="fact-label">${esc(f.label)}</span></div>`
+      )
+      .join("");
+
+    const creds = a.credentials
+      .map((c) => {
+        const m = monogram(c.issuer);
         const inner = `
-        <span class="cert-index" aria-hidden="true">${idx}</span>
-        ${iconMarkup}
-        <span class="cert-text">
-          <span class="cert-issuer">${escapeHtml(cert.issuer)}</span>
-          <span class="cert-name">${escapeHtml(cert.name)}</span>
-        </span>
-        <span class="cert-year">${escapeHtml(cert.year)}</span>`;
-        if (cert.credentialUrl) {
-          return `<a class="cert-row is-link reveal ${cert.delayClass}" href="${escapeHtml(
-            cert.credentialUrl
-          )}" target="_blank" rel="noopener noreferrer">${inner}<span class="cert-arrow">${ARROW_UPRIGHT}</span></a>`;
+          <span class="cred-mark${
+            m.acronym ? " cred-mark--acronym" : ""
+          }" aria-hidden="true">${esc(m.text)}</span>
+          <span class="cred-text">
+            <span class="cred-issuer">${esc(c.issuer)}</span>
+            <span class="cred-name">${esc(c.name)}</span>
+          </span>
+          <span class="cred-year">${esc(c.year)}</span>`;
+        if (c.credentialUrl) {
+          return `<li><a class="cred-row" href="${esc(
+            c.credentialUrl
+          )}" target="_blank" rel="noopener noreferrer">${inner}<span class="cred-arrow">${
+            ICON.external
+          }</span></a></li>`;
         }
-        return `<div class="cert-row reveal ${cert.delayClass}">${inner}</div>`;
+        return `<li><div class="cred-row">${inner}<span></span></div></li>`;
       })
       .join("");
-    document.getElementById("certifications-root").innerHTML = `
-      <div class="section-label reveal">${escapeHtml(c.sectionLabel)}</div>
-      <h2 class="section-title reveal">${escapeHtml(c.title)}</h2>
-      <div class="certs-list">${rows}</div>`;
+
+    byId("about-root").innerHTML =
+      sectionHead(a.sectionLabel, "about-heading", a.title) +
+      `
+      <div class="about-grid">
+        <div class="about-bio reveal">
+          ${a.paragraphs.map((p) => `<p>${p}</p>`).join("")}
+          <span class="about-badge"><span class="status-dot" aria-hidden="true"></span>${esc(
+            a.badge
+          )}</span>
+        </div>
+        <div class="reveal" data-delay="1">
+          <div class="facts-grid">${facts}</div>
+        </div>
+      </div>
+
+      <div class="credentials" id="certifications">
+        <div class="credentials-head reveal">
+          <p class="section-label">${esc(a.credentialsLabel)}</p>
+        </div>
+        <ul class="cred-list reveal" data-delay="1">${creds}</ul>
+      </div>`;
   }
 
   function renderContact() {
     const c = portfolioData.contact;
-    const { before, emphasis, after } = c.headline;
-    const email =
-      c.email ||
-      (c.links.find((l) => l.icon === "mail") || {}).href?.replace(
-        "mailto:",
-        ""
-      ) ||
-      "";
     const links = c.links
-      .map((lnk) => {
-        const svg = CONTACT_ICONS[lnk.icon] || "";
-        const target = lnk.external
-          ? ' target="_blank" rel="noopener noreferrer"'
-          : "";
-        return `<a href="${escapeHtml(
-          lnk.href
-        )}" class="contact-link"${target}>${svg}${escapeHtml(lnk.label)}</a>`;
-      })
+      .map(
+        (l) =>
+          `<a class="contact-link" href="${esc(l.href)}"${
+            l.external ? ' target="_blank" rel="noopener noreferrer"' : ""
+          }>${ICON[l.icon] || ""}${esc(l.label)}</a>`
+      )
       .join("");
-    const copyBtn = email
-      ? `<button type="button" class="contact-link contact-copy" id="copy-email" data-email="${escapeHtml(
-          email
-        )}">${CONTACT_ICONS.copy}<span class="copy-label">Copy email</span></button>`
+
+    const copy = c.email
+      ? `<button type="button" class="contact-link" id="copy-email" data-email="${esc(
+          c.email
+        )}">${ICON.copy}<span class="copy-label">Copy email</span></button>`
       : "";
-    document.getElementById("contact-root").innerHTML = `
-      <div class="section-label reveal">${escapeHtml(c.sectionLabel)}</div>
-      <h2 class="contact-headline reveal">${escapeHtml(
-        before
-      )}<br><em>${escapeHtml(emphasis)}</em> ${escapeHtml(after)}</h2>
-      <p class="contact-sub reveal">${escapeHtml(c.sub)}</p>
-      <div class="contact-links reveal">${links}${copyBtn}</div>`;
+
+    byId("contact-root").innerHTML = `
+      <div class="contact-inner">
+        <p class="section-label reveal">${esc(c.sectionLabel)}</p>
+        <h2 class="contact-headline reveal" data-delay="1" id="contact-heading">${esc(
+          c.headline
+        )}</h2>
+        <p class="contact-sub reveal" data-delay="2">${esc(c.sub)}</p>
+        <div class="contact-links reveal" data-delay="3">${links}${copy}</div>
+      </div>`;
   }
 
   function renderFooter() {
     const { meta, contact } = portfolioData;
-    const linkedin = contact.links.find((l) => l.icon === "linkedin");
-    const github = contact.links.find((l) => l.icon === "github");
-    const email = contact.links.find((l) => l.icon === "mail");
-    document.getElementById("footer-root").innerHTML = `
-      <div class="footer-copy">© <span id="footer-year">${
-        meta.footer.year
-      }</span> Muhamad Insan Taufik · ${escapeHtml(meta.footer.location)}</div>
-      <div class="footer-links">
-        <a href="${escapeHtml(
-          linkedin.href
+    const find = (icon) => contact.links.find((l) => l.icon === icon) || { href: "#" };
+    byId("footer-root").innerHTML = `
+      <p class="footer-copy">© ${meta.footer.year} Muhamad Insan Taufik · ${esc(
+      meta.footer.location
+    )}</p>
+      <nav class="footer-links" aria-label="Elsewhere">
+        <a href="${esc(
+          find("linkedin").href
         )}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="${escapeHtml(
-          github.href
+        <a href="${esc(
+          find("github").href
         )}" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="${escapeHtml(email.href)}">Email</a>
-        <a href="#hero" class="footer-top">Back to top ↑</a>
-      </div>`;
+        <a href="${esc(find("mail").href)}">Email</a>
+        <a href="#hero">Back to top</a>
+      </nav>`;
   }
 
-  /* ── Scroll reveal + timeline dots ── */
-  function setupRevealObserver() {
-    const reveals = document.querySelectorAll(".reveal");
-    if (prefersReduced() || !("IntersectionObserver" in window)) {
-      reveals.forEach((el) => el.classList.add("visible"));
-      document
-        .querySelectorAll(".tl-item")
-        .forEach((el) => el.classList.add("is-active"));
+  /* ── Scroll reveal ───────────────────────────────────────── */
+  function initReveal() {
+    const items = document.querySelectorAll(".reveal");
+    if (reduced() || !("IntersectionObserver" in window)) {
+      items.forEach((el) => el.classList.add("is-visible"));
       return;
     }
-    if (revealObserver) revealObserver.disconnect();
-    revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("visible");
-          if (entry.target.classList.contains("tl-item")) {
-            entry.target.classList.add("is-active");
-          }
-          revealObserver.unobserve(entry.target);
+
+    // The hero is above the fold by definition, so it runs its entrance on
+    // load. Waiting for an intersection would leave the CTAs invisible on a
+    // short viewport, where they sit just below the observer's margin.
+    const hero = document.querySelectorAll("#hero .reveal");
+    const show = () => hero.forEach((el) => el.classList.add("is-visible"));
+    requestAnimationFrame(() => requestAnimationFrame(show));
+    // Backstop for background tabs, where rAF is throttled.
+    setTimeout(show, 300);
+
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add("is-visible");
+          obs.unobserve(e.target);
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
     );
-    reveals.forEach((el) => revealObserver.observe(el));
-    document
-      .querySelectorAll(".tl-item")
-      .forEach((el) => revealObserver.observe(el));
+    items.forEach((el) => {
+      if (!el.closest("#hero")) io.observe(el);
+    });
   }
 
-  /* ── Animated counters ── */
+  /* ── Counters ────────────────────────────────────────────── */
   function initCounters() {
     const els = document.querySelectorAll("[data-count]");
     if (!els.length) return;
 
     const run = (el) => {
       const target = parseFloat(el.getAttribute("data-count"));
-      const finalText = el.getAttribute("data-value") || String(target);
-      if (isNaN(target)) {
-        el.textContent = finalText;
-        return;
-      }
-      if (prefersReduced()) {
-        el.textContent = finalText;
+      const final = el.getAttribute("data-final") || String(target);
+      if (isNaN(target) || reduced()) {
+        el.textContent = final;
         return;
       }
       const decimals = (String(target).split(".")[1] || "").length;
-      const duration = 1100;
       const start = performance.now();
       const tick = (now) => {
-        const t = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - t, 3);
-        const val = target * eased;
-        el.textContent = decimals
-          ? val.toFixed(decimals)
-          : Math.round(val).toLocaleString();
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          el.textContent = finalText;
-        }
+        const t = Math.min(1, (now - start) / 900);
+        const v = target * (1 - Math.pow(1 - t, 3));
+        el.textContent = decimals ? v.toFixed(decimals) : Math.round(v).toLocaleString();
+        if (t < 1) requestAnimationFrame(tick);
+        else el.textContent = final;
       };
       requestAnimationFrame(tick);
     };
 
-    if (!("IntersectionObserver" in window)) {
-      els.forEach(run);
+    if (reduced() || !("IntersectionObserver" in window)) {
+      els.forEach((el) => {
+        el.textContent = el.getAttribute("data-final") || el.textContent;
+      });
       return;
     }
     const io = new IntersectionObserver(
       (entries, obs) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) {
-            run(e.target);
-            obs.unobserve(e.target);
-          }
+          if (!e.isIntersecting) return;
+          run(e.target);
+          obs.unobserve(e.target);
         });
       },
       { threshold: 0.6 }
@@ -649,179 +560,203 @@
     els.forEach((el) => io.observe(el));
   }
 
-  /* ── Hero entrance ── */
-  function initHeroIntro() {
-    const root = document.getElementById("hero-root");
-    if (!root) return;
-    const ready = () => root.classList.add("is-ready");
-    // Double-rAF triggers the CSS transitions from a painted initial state…
-    requestAnimationFrame(() => requestAnimationFrame(ready));
-    // …with a timeout fallback for tabs opened in the background, where rAF
-    // is throttled and would otherwise leave hero-anim / terminal lines hidden.
-    setTimeout(ready, 250);
+  /* ── Header state + scroll spy ───────────────────────────── */
+  function initHeader() {
+    const header = byId("site-header");
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        header.classList.toggle("is-scrolled", window.scrollY > 24);
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
   }
 
-  /* ── Nav scroll progress ── */
-  function initScrollProgress() {
+  /**
+   * Active-section highlight. An IntersectionObserver watching a thin
+   * band below the header avoids reading offsetTop on every scroll tick.
+   */
+  function initScrollSpy() {
+    const anchors = document.querySelectorAll("a[data-section]");
+    if (!anchors.length || !("IntersectionObserver" in window)) return;
+
+    const sections = Array.from(document.querySelectorAll("main > section[id]"));
+    const watched = sections.filter((s) =>
+      Array.from(anchors).some((a) => a.dataset.section === s.id)
+    );
+    if (!watched.length) return;
+
+    const visible = new Set();
+    let current = "";
+
+    const setActive = (id) => {
+      if (id === current) return;
+      current = id;
+      anchors.forEach((a) => {
+        if (a.dataset.section === id) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        });
+        // The last section in document order touching the band is the
+        // one the reader has most recently arrived at.
+        for (let i = watched.length - 1; i >= 0; i--) {
+          if (visible.has(watched[i].id)) {
+            setActive(watched[i].id);
+            return;
+          }
+        }
+        // Above the first watched section (the hero) nothing is current.
+        setActive("");
+      },
+      { rootMargin: "-80px 0px -55% 0px", threshold: 0 }
+    );
+    watched.forEach((s) => io.observe(s));
+  }
+
+  /* ── Scroll progress fallback (no CSS scroll timelines) ──── */
+  function initScrollProgressFallback() {
+    const bar = byId("scroll-progress");
+    if (!bar || reduced()) return;
+    if (window.CSS && CSS.supports && CSS.supports("animation-timeline", "scroll()")) return;
+
     const root = document.documentElement;
     let ticking = false;
     const update = () => {
       const max = root.scrollHeight - root.clientHeight;
-      const p = max > 0 ? Math.min(1, root.scrollTop / max) : 0;
-      root.style.setProperty("--scroll-progress", p.toFixed(4));
+      bar.style.transform = `scaleX(${max > 0 ? root.scrollTop / max : 0})`;
       ticking = false;
     };
     window.addEventListener(
       "scroll",
       () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
-        }
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(update);
       },
       { passive: true }
     );
     update();
   }
 
-  /* ── Subtle parallax (hero) ── */
-  function initParallax() {
-    if (prefersReduced()) return;
-    const gridBg = document.querySelector(".hero-grid-bg");
-    const layers = document.querySelectorAll("[data-parallax]");
-    const hero = document.getElementById("hero");
-    if (!hero) return;
+  /* ── Mobile navigation ───────────────────────────────────── */
+  const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  let closeMobile = () => {};
 
-    let px = 0,
-      py = 0;
-    const onMove = (e) => {
-      const r = hero.getBoundingClientRect();
-      px = (e.clientX - r.left) / r.width - 0.5;
-      py = (e.clientY - r.top) / r.height - 0.5;
-      requestAnimationFrame(apply);
+  function initMobileNav() {
+    const btn = byId("hamburger");
+    const menu = byId("mobile-menu");
+    const backdrop = byId("mobile-backdrop");
+    if (!btn || !menu) return;
+
+    const isOpen = () => btn.getAttribute("aria-expanded") === "true";
+
+    const open = () => {
+      menu.hidden = false;
+      backdrop.hidden = false;
+      // Next frame, so the transition runs from the painted hidden state.
+      requestAnimationFrame(() => {
+        menu.classList.add("is-open");
+        backdrop.classList.add("is-open");
+      });
+      btn.setAttribute("aria-expanded", "true");
+      btn.setAttribute("aria-label", "Close menu");
+      document.body.classList.add("menu-open");
+      const first = menu.querySelector(FOCUSABLE);
+      if (first) first.focus();
     };
-    const apply = () => {
-      if (gridBg) gridBg.style.transform = `translate(${px * 14}px, ${py * 14}px)`;
-      layers.forEach((el) => {
-        const depth = parseFloat(el.getAttribute("data-parallax")) || 0.02;
-        el.style.transform = `translate(${px * depth * 600}px, ${
-          py * depth * 600
-        }px)`;
-      });
+
+    const close = (returnFocus) => {
+      if (!isOpen()) return;
+      menu.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-label", "Open menu");
+      document.body.classList.remove("menu-open");
+      window.setTimeout(() => {
+        if (!isOpen()) {
+          menu.hidden = true;
+          backdrop.hidden = true;
+        }
+      }, reduced() ? 0 : 220);
+      if (returnFocus) btn.focus();
     };
-    if (prefersFine()) {
-      hero.addEventListener("mousemove", onMove, { passive: true });
-      hero.addEventListener("mouseleave", () => {
-        px = 0;
-        py = 0;
-        requestAnimationFrame(apply);
-      });
-    }
-  }
+    closeMobile = close;
 
-  /* ── Cursor-follow ring ── */
-  function initCursor() {
-    const ring = document.getElementById("cursor-ring");
-    if (!ring || !prefersFine() || prefersReduced()) return;
-    document.body.classList.add("has-cursor-ring");
-
-    let rx = window.innerWidth / 2,
-      ry = window.innerHeight / 2;
-    let tx = rx,
-      ty = ry;
-    let raf = null;
-
-    const loop = () => {
-      rx += (tx - rx) * 0.18;
-      ry += (ty - ry) * 0.18;
-      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-      raf = Math.abs(tx - rx) > 0.1 || Math.abs(ty - ry) > 0.1
-        ? requestAnimationFrame(loop)
-        : null;
-    };
-    window.addEventListener(
-      "mousemove",
-      (e) => {
-        tx = e.clientX;
-        ty = e.clientY;
-        ring.classList.add("is-visible");
-        if (!raf) raf = requestAnimationFrame(loop);
-      },
-      { passive: true }
-    );
-    window.addEventListener("mouseout", (e) => {
-      if (!e.relatedTarget) ring.classList.remove("is-visible");
+    btn.addEventListener("click", () => (isOpen() ? close(true) : open()));
+    backdrop.addEventListener("click", () => close(true));
+    menu.addEventListener("click", (e) => {
+      if (e.target.closest("a")) close(false);
     });
 
-    const hoverSel = "a, button, .chip, .project-card, .cert-row.is-link, [role='button']";
-    document.addEventListener("mouseover", (e) => {
-      if (e.target.closest(hoverSel)) ring.classList.add("is-hover");
-    });
-    document.addEventListener("mouseout", (e) => {
-      if (e.target.closest(hoverSel)) ring.classList.remove("is-hover");
-    });
-  }
-
-  /* ── Magnetic buttons ── */
-  function initMagneticButtons() {
-    if (!prefersFine() || prefersReduced()) return;
-    document.querySelectorAll(".btn-magnetic, .nav-cta").forEach((btn) => {
-      const strength = 0.25;
-      btn.addEventListener("mousemove", (e) => {
-        const r = btn.getBoundingClientRect();
-        const mx = e.clientX - r.left - r.width / 2;
-        const my = e.clientY - r.top - r.height / 2;
-        btn.style.transform = `translate(${mx * strength}px, ${my * strength}px)`;
-      });
-      btn.addEventListener("mouseleave", () => {
-        btn.style.transform = "";
-      });
-    });
-  }
-
-  /* ── Card pointer spotlight ── */
-  function initCardSpotlight() {
-    if (prefersReduced()) return;
-    document.querySelectorAll(".spotlight").forEach((card) => {
-      card.addEventListener(
-        "mousemove",
-        (e) => {
-          const r = card.getBoundingClientRect();
-          card.style.setProperty("--mx", `${e.clientX - r.left}px`);
-          card.style.setProperty("--my", `${e.clientY - r.top}px`);
-        },
-        { passive: true }
-      );
-    });
-  }
-
-  /* ── Skill chip highlight ── */
-  function initSkillFilter() {
-    document.querySelectorAll(".skill-category .skill-chips").forEach((group) => {
-      group.addEventListener("click", (e) => {
-        const chip = e.target.closest(".chip");
-        if (!chip) return;
-        const wasActive = chip.classList.contains("is-active");
-        group.querySelectorAll(".chip").forEach((c) => c.classList.remove("is-active"));
-        group.classList.toggle("has-selection", !wasActive);
-        if (!wasActive) chip.classList.add("is-active");
-      });
-      group.addEventListener("keydown", (e) => {
-        if (e.key !== "Enter" && e.key !== " ") return;
-        const chip = e.target.closest(".chip");
-        if (!chip) return;
+    document.addEventListener("keydown", (e) => {
+      if (!isOpen()) return;
+      if (e.key === "Escape") {
         e.preventDefault();
-        chip.click();
-      });
+        close(true);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      // Keep focus inside the menu and its trigger while it is open.
+      const items = [btn].concat(Array.from(menu.querySelectorAll(FOCUSABLE)));
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 720) close(false);
     });
   }
 
-  /* ── Copy email ── */
+  /* ── Anchor navigation ───────────────────────────────────── */
+  function initAnchors() {
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href || href === "#") return;
+      const target = document.querySelector(href);
+      if (!target) return;
+
+      e.preventDefault();
+      closeMobile(false);
+      target.scrollIntoView({
+        behavior: reduced() ? "auto" : "smooth",
+        block: "start",
+      });
+      // Move focus without a second scroll jump, so the keyboard lands
+      // where the page just went.
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+      if (history.replaceState) history.replaceState(null, "", href);
+    });
+  }
+
+  /* ── Copy email ──────────────────────────────────────────── */
   function initCopyEmail() {
-    const btn = document.getElementById("copy-email");
+    const btn = byId("copy-email");
     if (!btn) return;
     const label = btn.querySelector(".copy-label");
     const original = label ? label.textContent : "";
+    let timer;
+
     btn.addEventListener("click", async () => {
       const email = btn.getAttribute("data-email");
       try {
@@ -829,163 +764,74 @@
       } catch (_) {
         const ta = document.createElement("textarea");
         ta.value = email;
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
+        ta.style.cssText = "position:fixed;opacity:0";
         document.body.appendChild(ta);
         ta.select();
         try {
           document.execCommand("copy");
         } catch (__) {}
-        document.body.removeChild(ta);
+        ta.remove();
       }
       btn.classList.add("is-copied");
       if (label) label.textContent = "Copied";
-      window.setTimeout(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
         btn.classList.remove("is-copied");
         if (label) label.textContent = original;
       }, 1800);
     });
   }
 
-  /* ── Mobile nav ── */
-  function closeMobile() {
-    const hamburger = document.getElementById("hamburger");
-    const mobileMenu = document.getElementById("mobile-menu-root");
-    const backdrop = document.getElementById("mobile-backdrop");
-    if (hamburger) {
-      hamburger.classList.remove("open");
-      hamburger.setAttribute("aria-expanded", "false");
-      hamburger.setAttribute("aria-label", "Open menu");
-    }
-    if (mobileMenu) mobileMenu.classList.remove("open");
-    if (backdrop) backdrop.classList.remove("open");
-    document.body.classList.remove("menu-open");
-  }
-
-  function initMobileNav() {
-    const hamburger = document.getElementById("hamburger");
-    const mobileMenu = document.getElementById("mobile-menu-root");
-    const backdrop = document.getElementById("mobile-backdrop");
-    if (!hamburger || !mobileMenu) return;
-
-    const open = () => {
-      hamburger.classList.add("open");
-      hamburger.setAttribute("aria-expanded", "true");
-      hamburger.setAttribute("aria-label", "Close menu");
-      mobileMenu.classList.add("open");
-      if (backdrop) backdrop.classList.add("open");
-      document.body.classList.add("menu-open");
-    };
-    const toggle = () =>
-      hamburger.classList.contains("open") ? closeMobile() : open();
-
-    hamburger.addEventListener("click", toggle);
-    if (backdrop) backdrop.addEventListener("click", closeMobile);
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMobile();
-    });
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 640) closeMobile();
-    });
-  }
-
-  function initSmoothAnchors() {
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      const href = anchor.getAttribute("href");
-      if (!href || href === "#") return;
-      anchor.addEventListener("click", function (e) {
-        const target = document.querySelector(href);
-        if (!target) return;
-        e.preventDefault();
-        target.scrollIntoView({
-          behavior: prefersReduced() ? "auto" : "smooth",
-          block: "start",
-        });
-        closeMobile();
-        // Move focus for keyboard users without a second scroll jump.
-        target.setAttribute("tabindex", "-1");
-        target.focus({ preventScroll: true });
-      });
-    });
-  }
-
-  function initNavbarScroll() {
-    const navbar = document.getElementById("navbar");
-    const onScroll = () => {
-      navbar.classList.toggle("scrolled", window.scrollY > 40);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-  }
-
-  function initActiveSectionNav() {
-    const navAnchors = document.querySelectorAll(
-      ".nav-links a[data-section], #mobile-menu-root a[data-section]"
-    );
-    const sections = Array.from(document.querySelectorAll("section[id]"));
-
-    function updateActive() {
-      const pos = window.scrollY + 120;
-      let currentId = sections[0]?.getAttribute("id") || "";
-      for (const sec of sections) {
-        if (pos >= sec.offsetTop) currentId = sec.getAttribute("id") || "";
-      }
-      navAnchors.forEach((a) => {
-        a.classList.toggle(
-          "active",
-          a.getAttribute("data-section") === currentId
-        );
-      });
-    }
-
-    window.addEventListener("scroll", updateActive, { passive: true });
-    updateActive();
-  }
-
-  function bootstrap() {
+  /* ── Boot ────────────────────────────────────────────────── */
+  /* Content first. This script is the last thing in <body>, so every root
+     element already exists — rendering here rather than on DOMContentLoaded
+     means the page is complete before the browser's first paint, which is
+     what keeps cumulative layout shift at zero. */
+  function render() {
     document.title = portfolioData.meta.title;
+
     renderNav();
     renderHero();
-    renderStrengths();
-    renderAbout();
+    renderEvidence();
     renderExperience();
-    renderSkills();
     renderProjects();
-    renderCertifications();
+    renderSkills();
+    renderAbout();
     renderContact();
     renderFooter();
 
-    initMobileNav();
-    initSmoothAnchors();
-    initNavbarScroll();
-    initActiveSectionNav();
-    setupRevealObserver();
-
-    initHeroIntro();
-    initScrollProgress();
-    initCounters();
-    initParallax();
-    initCursor();
-    initMagneticButtons();
-    initCardSpotlight();
-    initSkillFilter();
-    initCopyEmail();
-
-    // React to a live change in the motion preference.
-    const onMotionChange = () => {
-      if (prefersReduced()) {
-        document
-          .querySelectorAll(".reveal")
-          .forEach((el) => el.classList.add("visible"));
-      }
-    };
-    if (mqReduced.addEventListener)
-      mqReduced.addEventListener("change", onMotionChange);
+    // Content is in place; give the sections their spacing back.
+    document.getElementById("main").classList.remove("is-booting");
   }
 
+  /* Behaviour second: observers and listeners, once the DOM is settled. */
+  function enhance() {
+    initMobileNav();
+    initAnchors();
+    initHeader();
+    initScrollSpy();
+    initScrollProgressFallback();
+    initReveal();
+    initCounters();
+    initCopyEmail();
+
+    // If the motion preference flips mid-session, don't strand hidden content.
+    if (mqReduced.addEventListener) {
+      mqReduced.addEventListener("change", () => {
+        if (reduced()) {
+          document
+            .querySelectorAll(".reveal")
+            .forEach((el) => el.classList.add("is-visible"));
+        }
+      });
+    }
+  }
+
+  render();
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootstrap);
+    document.addEventListener("DOMContentLoaded", enhance);
   } else {
-    bootstrap();
+    enhance();
   }
 })();
