@@ -82,6 +82,7 @@
   --measure: 62ch;
   --maxw: 1180px;
   --header-h: 64px;
+  --card-pad: clamp(1.25rem, 2.6vw, 2rem);
 
   /* Shape */
   --r-sm: 3px;
@@ -162,7 +163,8 @@ svg {
 
 /* Author `display` declarations outrank the UA rule for [hidden],
    so state it explicitly and keep `hidden` meaningful. */
-[hidden] {
+/* until-found stays in layout (content-visibility: hidden) so find-in-page can reach it. */
+[hidden]:not([hidden="until-found"]) {
   display: none !important;
 }
 
@@ -444,7 +446,7 @@ html.js main.is-booting > section {
   background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: clamp(1.25rem, 2.6vw, 2rem);
+  padding: var(--card-pad);
   transition:
     border-color var(--dur-2) var(--ease-std),
     box-shadow var(--dur-2) var(--ease-out),
@@ -522,20 +524,20 @@ html.js main.is-booting > section {
 }
 
 /* ── 10. COMPONENTS: disclosure ────────────────────────────── */
+/* A row between two hairlines, not a tinted box: the label and chevron are
+   the affordance. `.case-toggle` is the project version, a <button>. */
 .disclosure {
-  border: 1px solid var(--line-strong);
-  border-inline-start: 3px solid var(--accent);
-  border-radius: var(--r);
-  background: var(--accent-wash);
+  border-block: 1px solid var(--line);
 }
 
-.disclosure > summary {
+.disclosure > summary,
+.case-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-4);
   min-block-size: 48px;
-  padding: var(--s-3) var(--s-4);
+  padding: var(--s-3) 0;
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   font-weight: 500;
@@ -544,7 +546,15 @@ html.js main.is-booting > section {
   color: var(--accent);
   cursor: pointer;
   list-style: none;
-  transition: background-color var(--dur-1) var(--ease-std), color var(--dur-1) var(--ease-std);
+  transition: color var(--dur-1) var(--ease-std);
+}
+
+.case-toggle {
+  inline-size: 100%;
+  border: 0;
+  border-block: 1px solid var(--line);
+  background: none;
+  text-align: start;
 }
 
 .disclosure > summary::-webkit-details-marker {
@@ -552,9 +562,15 @@ html.js main.is-booting > section {
 }
 
 .disclosure > summary:hover,
-.disclosure > summary:focus-visible {
-  background: var(--surface-2);
+.case-toggle:hover {
   color: var(--accent-strong);
+}
+
+.disclosure > summary:hover .disclosure-label,
+.case-toggle:hover .disclosure-label {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 }
 
 .disclosure-icon {
@@ -566,7 +582,8 @@ html.js main.is-booting > section {
   transition: transform var(--dur-2) var(--ease-out);
 }
 
-.disclosure[open] > summary .disclosure-icon {
+.disclosure[open] > summary .disclosure-icon,
+.case-toggle[aria-expanded="true"] .disclosure-icon {
   transform: rotate(180deg);
 }
 
@@ -577,26 +594,32 @@ html.js main.is-booting > section {
 .disclosure-body-inner {
   display: grid;
   gap: var(--s-5);
-  padding: var(--s-2) var(--s-4) var(--s-5);
+  padding: var(--s-2) 0 var(--s-5);
 }
 
+/* Same reading measure as the role context above it; tags keep the full row. */
+.disclosure-body-inner > .detail-block {
+  max-inline-size: 72ch;
+}
+
+/* The one line of evidence. Weight and full-strength colour set it apart
+   from the muted context above it; no callout box needed. */
 .proof-line {
-  border-inline-start: 2px solid var(--accent);
-  padding: var(--s-2) var(--s-4);
-  background: var(--accent-wash);
   color: var(--fg);
   font-size: var(--fs-sm);
+  font-weight: 500;
   line-height: 1.55;
   text-wrap: pretty;
 }
 
-.disclosure.is-hinted > summary {
+/* First time a toggle scrolls into view, the chevron nods once. */
+.is-hinted .disclosure-icon {
   animation: disclosure-hint 750ms var(--ease-out) 1;
 }
 
 @keyframes disclosure-hint {
-  0%, 100% { background: transparent; }
-  45% { background: var(--surface-2); }
+  0%, 100% { translate: 0 0; }
+  45% { translate: 0 3px; }
 }
 
 .detail-block {
@@ -1212,15 +1235,47 @@ html.js main.is-booting > section {
   position: relative;
 }
 
+/* Three areas. Stacked by default: summary, case study, stack + links. When a
+   desktop card widens they become two columns (see 16b), and the case study
+   gets the right-hand one. */
 .project-content {
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-direction: column;
-  gap: var(--s-4);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: "main" "case" "foot";
   min-inline-size: 0;
   opacity: 1;
   transform: translateY(0);
   transition: opacity 220ms var(--ease-std), transform 360ms var(--ease-out);
+}
+
+.project-main,
+.project-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-inline-size: 0;
+}
+
+.project-main {
+  grid-area: main;
+}
+
+.project-foot {
+  grid-area: foot;
+  padding-block-start: var(--s-4);
+}
+
+.project-case {
+  grid-area: case;
+  min-inline-size: 0;
+}
+
+.project-case-inner {
+  display: grid;
+  gap: var(--s-5);
+  padding-block: var(--s-4) var(--s-2);
 }
 
 .project-preview {
@@ -1345,6 +1400,8 @@ html.js main.is-booting > section {
   --slide-w: min(100%, 600px);
   --carousel-step: calc(var(--carousel-inline-size) + var(--carousel-gap));
   --dur-slide: 560ms;
+  --dur-expand: 420ms; /* main.js waits this long before unrolling the case study */
+  --slide-w-open: var(--slide-w);
   display: grid;
   gap: var(--s-4);
   position: relative;
@@ -1361,6 +1418,20 @@ html.js main.is-booting > section {
       calc(100vw - 2 * var(--gutter)),
       calc(2 * var(--carousel-step) + 0.7 * var(--slide-w) + 64px)
     );
+    /* An open case study: as wide as the carousel, less an arrow button and a
+       gap on each side, so neither the card nor the arrows reach the edge. */
+    --slide-w-open: min(
+      calc(var(--carousel-inline-size) - 2 * (44px + var(--s-4))),
+      1000px
+    );
+    /* The closed card's content width. The summary column keeps it when the
+       card widens, so its text never re-wraps mid-animation. */
+    --col-main: calc(var(--slide-w) - 2 * var(--card-pad) - 2px);
+  }
+
+  /* Neighbours slide outward as far as the card grows, fading as they go. */
+  .carousel.is-multi.is-expanded {
+    --carousel-push: calc((var(--slide-w-open) - var(--slide-w)) / 2);
   }
 }
 
@@ -1455,11 +1526,17 @@ html.js main.is-booting > section {
   justify-self: center;
   display: flex; /* the card fills the row, so all cards are the same height */
   transform: translateX(
-    calc(var(--rel, 0) * var(--carousel-step) + var(--drag, 0px))
+    calc(var(--rel, 0) * (var(--carousel-step) + var(--carousel-push, 0px)) + var(--drag, 0px))
   ) scale(var(--card-scale, 1));
   transition:
     transform var(--dur-slide) var(--ease-out),
-    opacity var(--dur-2) var(--ease-std);
+    opacity var(--dur-2) var(--ease-std),
+    inline-size var(--dur-expand) var(--ease-out);
+}
+
+/* Grows from the centre (justify-self: center). */
+.carousel-slide.is-expanded {
+  inline-size: var(--slide-w-open);
 }
 
 .carousel-slide > .project {
@@ -1493,7 +1570,6 @@ html.js main.is-booting > section {
   .carousel.is-multi .carousel-slide:not(.is-active) .project {
     justify-content: center;
     text-align: center;
-    background: radial-gradient(circle at 30% 20%, rgb(210 210 210 / 0.1), transparent 62%), var(--surface-2);
   }
 
   .carousel.is-multi .carousel-slide.is-visible:not(.is-active):hover {
@@ -1516,6 +1592,46 @@ html.js main.is-booting > section {
   .carousel.is-multi .carousel-controls .carousel-btn {
     pointer-events: auto;
   }
+
+  /* ── Open case study ── */
+  .carousel.is-multi.is-expanded .carousel-slide:not(.is-active) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .carousel.is-multi .carousel-slide.is-expanded .project-content {
+    grid-template-columns: var(--col-main) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "main case"
+      "foot case";
+    column-gap: var(--s-6);
+  }
+
+  /* A hairline column rule rather than a second box; it unrolls with the panel. */
+  .carousel.is-multi .carousel-slide.is-expanded .project-case {
+    align-self: start;
+    padding-inline-start: var(--s-6);
+    border-inline-start: 1px solid var(--line);
+  }
+
+  .carousel.is-multi .carousel-slide.is-expanded .project-case-inner {
+    padding-block: 0;
+  }
+
+  /* The panel opens sideways here, so the chevron points the way it goes. */
+  .carousel.is-multi .case-toggle .disclosure-icon {
+    transform: rotate(-90deg);
+  }
+
+  .carousel.is-multi .case-toggle[aria-expanded="true"] .disclosure-icon {
+    transform: rotate(90deg);
+  }
+}
+
+/* The growing card stays above neighbours that are still sliding clear. */
+.carousel-slide.is-active {
+  z-index: 1;
 }
 
 .carousel-track.is-dragging .carousel-slide {
@@ -1572,34 +1688,14 @@ html.js main.is-booting > section {
   gap: var(--s-5);
 }
 
+/* Each group hangs from a hairline; the heading and its evidence carry it,
+   without an icon tile or an accent bar. */
 .skill-group {
   display: grid;
-  gap: var(--s-4);
-  align-content: start;
-}
-
-.skill-group-head {
-  display: flex;
-  align-items: center;
   gap: var(--s-3);
-}
-
-.skill-icon {
-  inline-size: 34px;
-  block-size: 34px;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r);
-  color: var(--fg);
-}
-
-.skill-icon svg {
-  inline-size: 17px;
-  block-size: 17px;
-  stroke: currentColor;
-  fill: none;
+  align-content: start;
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--line);
 }
 
 .skill-group-title {
@@ -1610,10 +1706,7 @@ html.js main.is-booting > section {
 }
 
 .skill-evidence {
-  display: flex;
-  gap: var(--s-3);
-  padding-inline-start: var(--s-4);
-  border-inline-start: 2px solid var(--accent);
+  margin-block-end: var(--s-2);
   font-size: var(--fs-xs);
   line-height: 1.5;
   color: var(--fg-muted);
@@ -2108,7 +2201,7 @@ html.no-js .reveal {
 
   .status-dot,
   .scroll-progress,
-  .disclosure.is-hinted > summary {
+  .is-hinted .disclosure-icon {
     animation: none !important;
   }
 }
@@ -2126,6 +2219,14 @@ html.no-js .reveal {
   .disclosure::details-content {
     block-size: auto !important;
     opacity: 1 !important;
+  }
+
+  .project-case[hidden] {
+    content-visibility: visible !important;
+  }
+
+  .case-toggle {
+    display: none !important;
   }
 
   /* Paper has no second slide: lay every project out in a column. */

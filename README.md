@@ -233,18 +233,18 @@ renderer skips that part of the card.
 | `projects.items[]` | one entry per slide, in order | keep 4 or more so the loop has an offscreen slot to wrap through |
 | `projects.items[].featured` | boolean | gives the slide the darker card surface |
 | `projects.items[].flow` | `["Source", "Step", "Target"]` | arrow pipeline diagram, shown at the top of the case study |
-| `projects.items[].problem` / `.approach` / `.result` | string / `[string]` / `[string]` | the case-study disclosure |
+| `projects.items[].problem` / `.approach` / `.result` | string / `[string]` / `[string]` | the case study; on desktop the card widens and it opens in a second column |
 | `projects.items[].metrics` | `[{ value, label }]` | one-line stat strip under the summary |
 | `projects.items[].proof` | string | one sourced proof point on cards with a case study |
 | `projects.items[].image` | `{ src, alt, width, height }` | optional slide image, lazy-loaded; `alt` is required unless decorative |
 | `projects.items[].repo` / `.links` | URL / `[{ label, href }]` | outbound links pinned to the foot of the slide |
 | `projects.items[].meta` | `{ language, updated? }` | baked GitHub metadata (see below) |
-| `skills.groups[]` | `{ id, icon, title, evidence, items[] }` | `evidence` is the accented line under the heading |
+| `skills.groups[]` | `{ id, title, evidence, items[] }` | `evidence` is the line under the heading |
 | `about.credentials[].credentialUrl` | URL | makes the certification row a link |
 | `contact.email` | address | used by the "Copy email" button |
 
-Icons are referenced by name (`icon: "layers"`); the available names are the keys of `ICON`
-in `js/main.js`.
+Icons are referenced by name (`icon: "download"`); the available names are the keys of `ICON`
+in `js/main.js`. A section's eyebrow label is hidden when it would repeat the section title.
 
 ### Refreshing GitHub project metadata
 
@@ -262,8 +262,10 @@ Then set `meta` on that project, e.g. `meta: { language: "Python", updated: "Feb
 
 - Semantic landmarks (`header` / `nav` / `main` / `footer`), one `h1`, no heading-level skips
 - Every text/background pair on the page meets WCAG AA contrast
-- Progressive disclosure uses native `<details>`, so it is keyboard-operable, findable via
-  browser find-in-page, and deep-linkable
+- Experience disclosures use native `<details>`. Project case studies use a disclosure
+  button (`aria-expanded` / `aria-controls`) over a panel with `hidden="until-found"`, because
+  the panel moves into its own column when the card widens. Both are keyboard-operable and
+  findable via browser find-in-page; a find match opens the case study
 - Focus rings are accent-coloured and re-map per surface (deep blue on light, pale blue on dark)
 - The mobile menu traps focus while open and returns focus to its trigger on close
 - `prefers-reduced-motion: reduce` stops decorative reveals, the scroll-progress sweep and

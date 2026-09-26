@@ -451,7 +451,6 @@ const portfolioData = {
     groups: [
       {
         id: "testing",
-        icon: "check-circle",
         title: "Testing",
         evidence: "Test cases designed at Astra (200+), IDX (80+), Indivara (100+), and BTN (60+)",
         items: [
@@ -470,7 +469,6 @@ const portfolioData = {
       },
       {
         id: "platforms",
-        icon: "smartphone",
         title: "Application platforms",
         evidence: "15+ embedded dashboards tested on Web, Android, iOS, and iPadOS at Astra",
         items: [
@@ -483,7 +481,6 @@ const portfolioData = {
       },
       {
         id: "api",
-        icon: "terminal",
         title: "API & backend",
         evidence: "60+ regression and API cases over 10+ transaction types at BTN",
         items: [
@@ -497,7 +494,6 @@ const portfolioData = {
       },
       {
         id: "data",
-        icon: "layers",
         title: "Data & ETL",
         evidence: "100+ enterprise tables (1B+ rows) validated during the BigQuery migration",
         items: [
@@ -515,7 +511,6 @@ const portfolioData = {
       },
       {
         id: "automation",
-        icon: "monitor",
         title: "Automation",
         evidence: "Astra: executing and maintaining inherited Playwright and WebdriverIO/Appium suites. BTN: 25+ Tosca modules built",
         items: [
@@ -534,7 +529,6 @@ const portfolioData = {
       },
       {
         id: "tooling",
-        icon: "code",
         title: "Languages & tooling",
         evidence: "Day-to-day across every role listed",
         items: [

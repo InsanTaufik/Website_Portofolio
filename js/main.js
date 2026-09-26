@@ -41,18 +41,6 @@
       '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
     copy:
       '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
-    "check-circle":
-      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>',
-    smartphone:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>',
-    terminal:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="6 9 10 12 6 15"/><line x1="12" y1="15" x2="17" y2="15"/></svg>',
-    layers:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>',
-    monitor:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
-    code:
-      '<svg viewBox="0 0 24 24" stroke-width="1.5" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
   };
 
   /* ── Helpers ─────────────────────────────────────────────── */
@@ -111,9 +99,12 @@
   }
 
   function sectionHead(label, titleId, title, intro) {
+    // An eyebrow that repeats the heading ("PROJECTS / Projects") says nothing twice.
+    const showLabel =
+      label && String(label).trim().toLowerCase() !== String(title).trim().toLowerCase();
     return `
       <header class="section-head">
-        <p class="section-label reveal">${esc(label)}</p>
+        ${showLabel ? `<p class="section-label reveal">${esc(label)}</p>` : ""}
         <h2 class="section-title reveal" data-delay="1" id="${titleId}">${esc(
       title
     )}</h2>
@@ -371,6 +362,26 @@
           detailBlock("Approach", p.approach) +
           detailBlock("Result", p.result);
 
+        // The case study is a disclosure button plus a sibling panel rather than
+        // <details>, so the panel can sit in its own column when the card widens.
+        // hidden="until-found" keeps it reachable by find-in-page.
+        const caseId = "project-case-" + i;
+        const openLabel = pr.disclosureLabel.replace(/^View\b/, "Hide");
+        const caseToggle = caseBody
+          ? `<button type="button" class="case-toggle" aria-expanded="false"
+                     aria-controls="${caseId}"
+                     data-closed-label="${esc(pr.disclosureLabel)}"
+                     data-open-label="${esc(openLabel)}"><span
+                     class="disclosure-label">${esc(pr.disclosureLabel)}</span>${
+              ICON["chevron-down"]
+            }</button>`
+          : "";
+        const casePanel = caseBody
+          ? `<div class="project-case" id="${caseId}" role="region"
+                  aria-label="Case study: ${esc(p.title)}" hidden="until-found"><div
+                  class="project-case-inner">${caseBody}</div></div>`
+          : "";
+
         // The current project and its neighbours form the desktop preview.
         return `
         <div class="carousel-slide${i === 0 ? " is-active" : ""}${
@@ -384,17 +395,22 @@
           <article class="project card${p.featured ? " project--featured" : ""}">
             <div class="project-preview" aria-hidden="true">${esc(p.title)}</div>
             <div class="project-content"${i === 0 ? "" : " inert"}>
-              <div class="project-head">
-                ${projectEyebrow(p)}
-                <h3 class="project-title">${esc(p.title)}</h3>
-                <p class="project-summary">${esc(p.summary)}</p>
+              <div class="project-main">
+                <div class="project-head">
+                  ${projectEyebrow(p)}
+                  <h3 class="project-title">${esc(p.title)}</h3>
+                  <p class="project-summary">${esc(p.summary)}</p>
+                </div>
+                ${projectMedia(p)}
+                ${caseBody ? proofLine(p.proof) : ""}
+                ${caseToggle}
               </div>
-              ${projectMedia(p)}
-              ${caseBody ? proofLine(p.proof) : ""}
-              ${disclosure(pr.disclosureLabel, caseBody)}
-              ${statLine(p.metrics)}
-              ${tags(p.stack, "Tech stack")}
-              ${projectLinks(p)}
+              ${casePanel}
+              <div class="project-foot">
+                ${statLine(p.metrics)}
+                ${tags(p.stack, "Tech stack")}
+                ${projectLinks(p)}
+              </div>
             </div>
           </article>
         </div>`;
@@ -451,12 +467,7 @@
       .map(
         (g, i) => `
       <div class="skill-group reveal" data-delay="${Math.min(i % 3, 3)}">
-        <div class="skill-group-head">
-          <span class="skill-icon" aria-hidden="true">${
-            ICON[g.icon] || ICON["check-circle"]
-          }</span>
-          <h3 class="skill-group-title">${esc(g.title)}</h3>
-        </div>
+        <h3 class="skill-group-title">${esc(g.title)}</h3>
         <p class="skill-evidence">${esc(g.evidence)}</p>
         <ul class="skill-items">${g.items
           .map((it) => `<li class="tag">${esc(it)}</li>`)
@@ -887,6 +898,27 @@
     });
   }
 
+  /** Unroll (or roll up) `el` from `fromHeight` to its content height (or 0).
+      Returns the Animation; call endRoll() once it finishes. */
+  function rollHeight(el, fromHeight, fromOpacity, open, duration) {
+    el.style.height = fromHeight + "px";
+    el.style.overflow = "hidden";
+    const toHeight = open ? el.scrollHeight : 0;
+    return el.animate(
+      [
+        { height: fromHeight + "px", opacity: fromOpacity },
+        { height: toHeight + "px", opacity: open ? 1 : 0 },
+      ],
+      { duration, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)", fill: "forwards" }
+    );
+  }
+
+  function endRoll(el, animation) {
+    animation.cancel();
+    el.style.removeProperty("height");
+    el.style.removeProperty("overflow");
+  }
+
   /* Keep <details> native, then animate its body where Web Animations is
      available. The desired state is separate from details.open while closing. */
   const disclosureTargets = new WeakMap();
@@ -927,25 +959,14 @@
       return Promise.resolve();
     }
 
-    body.style.height = fromHeight + "px";
-    body.style.overflow = "hidden";
-    const toHeight = open ? body.scrollHeight : 0;
-    const animation = body.animate(
-      [
-        { height: fromHeight + "px", opacity: fromOpacity },
-        { height: toHeight + "px", opacity: open ? 1 : 0 },
-      ],
-      { duration: 320, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)", fill: "forwards" }
-    );
+    const animation = rollHeight(body, fromHeight, fromOpacity, open, 320);
     disclosureAnimations.set(details, animation);
     return animation.finished
       .then(() => {
         if (disclosureAnimations.get(details) !== animation) return;
         disclosureAnimations.delete(details);
         details.open = open;
-        animation.cancel();
-        body.style.removeProperty("height");
-        body.style.removeProperty("overflow");
+        endRoll(body, animation);
         syncDisclosureLabel(details);
       })
       .catch(() => {});
@@ -969,18 +990,118 @@
     if (!("IntersectionObserver" in window)) return;
     const first = [
       document.querySelector("#experience .disclosure"),
-      document.querySelector("#projects .disclosure"),
+      document.querySelector("#projects .case-toggle"),
     ].filter(Boolean);
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        const details = entry.target;
-        details.classList.add("is-hinted");
-        window.setTimeout(() => details.classList.remove("is-hinted"), 800);
-        observer.unobserve(details);
+        const el = entry.target;
+        el.classList.add("is-hinted");
+        window.setTimeout(() => el.classList.remove("is-hinted"), 800);
+        observer.unobserve(el);
       });
     }, { threshold: 0.5 });
-    first.forEach((details) => observer.observe(details));
+    first.forEach((el) => observer.observe(el));
+  }
+
+  /* ── Project case studies ────────────────────────────────────
+     A disclosure button and its panel. On the three-card desktop carousel the
+     card widens first (a CSS transition on the slide's inline-size), then the
+     panel unrolls in a second column beside the summary, so the case study
+     reads across the card instead of down a 340px column. The summary column
+     keeps its width throughout, so no text re-wraps while the card grows.
+     Everywhere else the panel unrolls in place below the toggle. */
+  const caseTargets = new WeakMap(); // slide → wanted open state
+  const caseRuns = new WeakMap(); // slide → run counter; a superseded run stops
+  const caseAnimations = new WeakMap(); // panel → running Animation
+  const caseHooks = {
+    wide: () => false, // does this slide widen when it opens? initCarousel decides
+    expandMs: () => 0,
+    change: () => {},
+  };
+
+  const isCaseOpen = (slide) => !!caseTargets.get(slide);
+  const delay = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+  function setCaseExpanded(slide, on) {
+    slide.classList.toggle("is-expanded", on);
+    const root = slide.closest(".carousel");
+    if (root) root.classList.toggle("is-expanded", on);
+  }
+
+  function rollPanel(panel, open, instant) {
+    const running = caseAnimations.get(panel);
+    const shown = !panel.hasAttribute("hidden");
+    if (!running && shown === open) return Promise.resolve();
+
+    const fromHeight = shown ? panel.getBoundingClientRect().height : 0;
+    const fromOpacity = running ? parseFloat(getComputedStyle(panel).opacity) : open ? 0 : 1;
+    if (running) {
+      caseAnimations.delete(panel);
+      endRoll(panel, running);
+    }
+    if (open) panel.removeAttribute("hidden");
+    if (instant || !panel.animate) {
+      if (!open) panel.setAttribute("hidden", "until-found");
+      return Promise.resolve();
+    }
+
+    const animation = rollHeight(panel, fromHeight, fromOpacity, open, open ? 340 : 260);
+    caseAnimations.set(panel, animation);
+    return animation.finished
+      .then(() => {
+        if (caseAnimations.get(panel) !== animation) return;
+        caseAnimations.delete(panel);
+        endRoll(panel, animation);
+        if (!open) panel.setAttribute("hidden", "until-found");
+      })
+      .catch(() => {});
+  }
+
+  /** Resolves once the case study has opened or closed. `instant` skips the
+      animation; `noWait` lets a closing card start narrowing without waiting
+      for it, so a slide change can run alongside. */
+  async function setCaseOpen(slide, open, opts = {}) {
+    const toggle = slide.querySelector(".case-toggle");
+    const panel = slide.querySelector(".project-case");
+    if (!toggle || !panel) return;
+    const run = (caseRuns.get(slide) || 0) + 1;
+    caseRuns.set(slide, run);
+    const stale = () => caseRuns.get(slide) !== run;
+
+    caseTargets.set(slide, open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.querySelector(".disclosure-label").textContent =
+      toggle.dataset[open ? "openLabel" : "closedLabel"];
+    caseHooks.change();
+
+    if (open) {
+      if (caseHooks.wide(slide) && !slide.classList.contains("is-expanded")) {
+        setCaseExpanded(slide, true);
+        if (!opts.instant) {
+          await delay(caseHooks.expandMs());
+          if (stale()) return;
+        }
+      }
+      await rollPanel(panel, true, opts.instant);
+      return;
+    }
+
+    await rollPanel(panel, false, opts.instant);
+    if (stale() || !slide.classList.contains("is-expanded")) return;
+    setCaseExpanded(slide, false);
+    if (!opts.instant && !opts.noWait) await delay(caseHooks.expandMs());
+  }
+
+  function initCaseStudies() {
+    document.querySelectorAll(".case-toggle").forEach((toggle) => {
+      const slide = toggle.closest(".carousel-slide");
+      const panel = document.getElementById(toggle.getAttribute("aria-controls"));
+      if (!slide || !panel) return;
+      toggle.addEventListener("click", () => setCaseOpen(slide, !isCaseOpen(slide)));
+      // Find-in-page reveals the panel on its own; bring the rest of the state along.
+      panel.addEventListener("beforematch", () => setCaseOpen(slide, true, { instant: true }));
+    });
   }
 
   /* ── Copy email ──────────────────────────────────────────── */
@@ -1055,6 +1176,20 @@
     const isVisible = (i) =>
       i === active || (showThree() && (i === (active + 1) % n || i === (active - 1 + n) % n));
 
+    // Only the active card of the three-card layout has room to widen.
+    caseHooks.wide = (slide) => showThree() && slide === slides[active];
+    caseHooks.expandMs = () => {
+      const v = getComputedStyle(root).getPropertyValue("--dur-expand").trim();
+      return v.slice(-2) === "ms" ? parseFloat(v) : parseFloat(v) * 1000 || 0;
+    };
+
+    /** Crossing the 900px breakpoint with a case study open. */
+    function syncExpanded() {
+      const s = slides[active];
+      const on = showThree() && isCaseOpen(s);
+      if (s.classList.contains("is-expanded") !== on) setCaseExpanded(s, on);
+    }
+
     /* ── Positioning ── */
     /** Set one slide's --rel. `animate: false` snaps just that slide, so slides
         that are mid-transition are left alone. */
@@ -1115,8 +1250,7 @@
       // A case study left open on a slide that has gone would keep the whole
       // row tall, so close it once the slide is out of sight.
       slides.forEach((s, i) => {
-        const d = !isVisible(i) && s.querySelector("details[open]");
-        if (d) d.open = false;
+        if (!isVisible(i) && isCaseOpen(s)) setCaseOpen(s, false, { instant: true });
       });
       moving = false;
       if (queued) {
@@ -1134,13 +1268,14 @@
         queued = { target: nextActive, announce };
         return;
       }
-      const openDetail = slides[active].querySelector("details[open]");
-      if (openDetail) {
+      const openSlide = slides[active];
+      if (isCaseOpen(openSlide)) {
+        // Roll the case study up, then let the card narrow while the slides move.
         closingForMove = true;
-        setDisclosureOpen(openDetail, false).then(() => {
+        setCaseOpen(openSlide, false, { noWait: true }).then(() => {
           closingForMove = false;
-          if (disclosureTargets.get(openDetail) !== false) {
-            queued = null;
+          if (isCaseOpen(openSlide)) {
+            queued = null; // reopened meanwhile
             return;
           }
           const request = queued || { target: nextActive, announce };
@@ -1238,8 +1373,12 @@
     });
     // A dot takes the shortest way round the ring.
     dots.forEach((d, i) => d.addEventListener("click", () => manual(ringWrap(i - active, n))));
-    if (desktop.addEventListener) desktop.addEventListener("change", show);
-    else desktop.addListener(show);
+    const onBreakpoint = () => {
+      show();
+      syncExpanded();
+    };
+    if (desktop.addEventListener) desktop.addEventListener("change", onBreakpoint);
+    else desktop.addListener(onBreakpoint);
     pauseBtn.addEventListener("click", () => {
       userPaused = !userPaused;
       syncPause();
@@ -1275,15 +1414,10 @@
       focused = root.contains(e.relatedTarget);
       syncAuto();
     });
-    // `toggle` doesn't bubble, so listen in the capture phase.
-    root.addEventListener(
-      "toggle",
-      () => {
-        caseOpen = !!root.querySelector("details[open]");
-        syncAuto();
-      },
-      true
-    );
+    caseHooks.change = () => {
+      caseOpen = slides.some(isCaseOpen);
+      syncAuto();
+    };
     document.addEventListener("visibilitychange", syncAuto);
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(
@@ -1328,6 +1462,8 @@
     viewport.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
       if (moving || closingForMove) return;
+      // A widened card is for reading: leave text selection alone.
+      if (slides[active].classList.contains("is-expanded")) return;
       if (drag && drag.live) return; // a second finger
       drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, live: false, step: 0, samples: [] };
       window.addEventListener("pointermove", onMove);
@@ -1441,6 +1577,7 @@
     initReveal();
     initCounters();
     initDisclosures();
+    initCaseStudies();
     initCarousel();
     initCopyEmail();
 
