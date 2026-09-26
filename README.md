@@ -15,8 +15,8 @@ I am an ISTQB-certified Software QA Engineer focused on product quality and reli
 | Metric | Details |
 |--------|---------|
 | **Experience** | 5 professional roles and internships across QA, data quality, and BI |
-| **Test Coverage** | 600+ test cases across functional, API, integration, BI, SIT, UAT, and regression |
-| **Data Validation** | 100+ enterprise datasets reconciled during Fabric / Cloudera → BigQuery migration (99.8% hash-match accuracy) |
+| **Test Coverage** | 440+ test cases designed across functional, API, integration, BI, SIT, UAT, and regression (200+ Astra, 80+ IDX, 100+ Indivara, 60+ BTN) |
+| **Data Validation** | 100+ enterprise tables (1B+ rows) validated during the Fabric / Cloudera → BigQuery migration (99.8% row-level hash match) |
 | **Education** | Bachelor of Information Systems, Telkom University (GPA 3.68 / 4.00) |
 | **Certifications** | ISTQB CTFL v4.0, BNSP Associate Data Scientist, HackerRank Python / SQL / Java (Basic) |
 
@@ -28,7 +28,7 @@ I am an ISTQB-certified Software QA Engineer focused on product quality and reli
 Functional, Regression, API, Integration, Mobile, Web, and Embedded-BI Testing, ETL / Data Validation, SIT, UAT, Test Case Design, Defect Management, Root Cause Analysis
 
 ### Automation & Tools
-Selenium, Playwright, Postman, Tricentis Tosca, JMeter, TestRail, Jira, Git, Gherkin (BDD)
+Playwright and WebdriverIO/Appium (executing and maintaining inherited suites), Selenium, Postman, Tricentis Tosca, Katalon Studio, JMeter, TestRail, Jira, Git, Gherkin (BDD)
 
 ### Programming & Database
 SQL, Python, Pandas, JavaScript, TypeScript, Java (basic)
@@ -43,36 +43,34 @@ Agile Scrum, SDLC, STLC, CI/CD fundamentals, Requirements / FSD Analysis, Cross-
 
 ## Professional Experience
 
-### Product Quality Assurance
-**PT Astra International Tbk** — Jakarta, Indonesia  
+### Software QA Engineer
+**PT Astra International Tbk** (via PT Global Lancesoft Indonesia) — Jakarta, Indonesia  
 *April 2026 — Present*
 
-Data-quality validation and end-to-end QA for the Auto Intelligence platform during a Microsoft Fabric and Cloudera → Google BigQuery migration across five business units (Daihatsu, Toyota, Honda, Lexus, Business Sales Operations).
+QA for Auto Intelligence, an enterprise BI application embedding Power BI reports, across Web, Android, iOS, and iPadOS, plus data validation for its Microsoft Fabric and Cloudera (Impala/Hive) → Google BigQuery migration.
 
-- Validated 100+ enterprise datasets, achieving 99.8% row-level hash-match accuracy with SQL reconciliation and Python/Pandas automation
-- Maintained 40+ Playwright automation scripts for the Auto Intelligence App, cutting flaky failures by 30%
-- Applied partition-based validation across datasets up to 1B+ rows — 25% fewer discrepancies, 40% faster validation queries
-- Tested 15+ embedded Power BI dashboards across Web, Android, and iOS
-- Ran SIT, UAT, regression, functional, and integration testing across 200+ test cases; documented 35+ Jira defects with root cause analysis
+- Validated 100+ enterprise tables (1B+ rows) through SQL and Python/Pandas reconciliation, achieving 99.8% row-level hash match across partitioned datasets
+- Executed functional, integration, regression, smoke, SIT, UAT, and release validation; designed 200+ test cases covering authentication/authorization, hierarchical slicers, filter-state persistence, and responsive rendering on 15+ dashboards
+- Execute and maintain the inherited Playwright (Web) and WebdriverIO/Appium (Android) regression suites, investigating failures and surfacing reliability improvements such as condition-based waits and resilient locators
+- Investigated API and backend issues using Postman and network log analysis; documented 35+ defects in Jira with full reproduction evidence, driving confirmation and release validation across 3 release cycles
 
 ### Quality Assurance Intern
 **PT IDX Solusi Teknologi Informasi** — Jakarta Selatan, Indonesia  
 *December 2025 — April 2026*
 
-Functional and regression testing across five capital-market and enterprise systems: IDX Terminal, KPEI Administration, HRIS, SSL/SFTP, and PME.
+Functional and regression testing for IDX Terminal and HRIS.
 
-- Authored and ran 80+ functional and regression test cases covering positive and negative scenarios
-- Groomed PRDs with developers, BAs, and designers, cutting ambiguous requirements by up to 50%
-- Identified six functional defects; performed defect validation, regression, and UAT across Agile sprints
+- Authored and executed 80+ functional and regression test cases, deriving positive and negative scenarios from functional requirements
+- Groomed PRDs with Developers, Business Analysts, and UI/UX Designers to surface ambiguous requirements before development
 
 ### Quality Assurance Intern
 **PT Indivara Group** — Tangerang, Indonesia  
 *November 2025 — December 2025*
 
-QA across four Agile-delivered FMCG applications — Bersama App (Android), Bersama Web Monitoring (CMS), Victory Web (Salesforce).
+Functional and regression testing across an Android app, a CMS, and a Salesforce platform.
 
-- Developed and executed 100+ functional and regression test cases, identifying 7 critical defects before production
-- Tracked and closed 20+ Jira defects using Gherkin-based acceptance criteria across 4 Agile sprints
+- Designed and executed 100+ functional and regression test cases, identifying 7 critical defects before production
+- Tracked 20+ defects in Jira using Gherkin-based acceptance criteria across 4 Agile sprints
 
 ### Teaching Assistant — Data Warehouse & BI
 **Daspro Laboratory, Telkom University** — Bandung, Indonesia  
@@ -83,18 +81,20 @@ Designed and delivered lab modules for the Data Warehouse and Business Intellige
 - Guided students in building ETL and BI workflows with Pentaho and SQL
 - Ran practical sessions on data validation and BI analysis; 90%+ of students achieved strong grades
 
-### Business Support Intern — QA & Testing
+### Business Support QA & Testing Intern
 **PT Bank Tabungan Negara (Persero) Tbk** — Jakarta, Indonesia  
 *June 2024 — August 2024*
 
-QA for BTN's Corporate Internet Banking platform — backend services, transaction data, and business-rule logic.
+API and regression testing for a Corporate Internet Banking platform.
 
-- Created and validated 60+ regression and API test cases covering 10+ banking transaction types
-- Built and maintained 25+ Tricentis Tosca automation modules, cutting manual regression effort by 80% per cycle
+- Created and executed 60+ API and regression test cases across 10+ transaction types
+- Built and maintained 25+ Tricentis Tosca automation modules supporting recurring regression cycles
 
 ---
 
 ## Featured Projects
+
+The site shows these as a carousel; the order below is the slide order.
 
 ### Sales & Inventory Forecasting System
 **Final-Year Project · 2025** — [github.com/InsanTaufik/Aplikasi-Prediksi-Shopee](https://github.com/InsanTaufik/Aplikasi-Prediksi-Shopee)
@@ -102,6 +102,20 @@ QA for BTN's Corporate Internet Banking platform — backend services, transacti
 A Streamlit web app that forecasts 12 months of product sales with an XGBoost pipeline (iterative prediction, seasonal analysis, lag features). Automated validation scripts protect the integrity of every model input.
 
 **Stack:** Python, XGBoost, Streamlit, Pandas, SQL, Scikit-learn — **R² 0.901 | MAPE <10%**
+
+### Java/Selenium Automation Framework
+**Test Automation · Personal project** — no public repository
+
+A test automation framework built from scratch to learn professional framework architecture: thread-safe parallel execution, constructor injection, and a polymorphic browser interface for cross-browser support.
+
+**Stack:** Java, Maven, TestNG, Selenium
+
+### Invoice Management API Automation
+**API Test Automation · 2025** — no public repository
+
+Katalon Studio suite for the authentication, invoice listing, invoice detail, and unbilled summary endpoints, with positive and negative scenarios for HTTP status codes and JSON payloads. Reusable request and retry handling through Custom Keywords; workflow documentation delivered.
+
+**Stack:** Katalon Studio, Groovy, REST API
 
 ### End-to-End Test Automation Framework
 **Test Automation · 2026** — [github.com/InsanTaufik/ESBTechnicalTest_Muhamad-Insan-Taufik](https://github.com/InsanTaufik/ESBTechnicalTest_Muhamad-Insan-Taufik)
@@ -140,7 +154,7 @@ Responsive multi-page personal profile site (vanilla HTML, CSS, JavaScript) buil
 ## About
 
 I hold a Bachelor of Information Systems from Telkom University (GPA 3.68/4.00). Since 2024 I've
-tested in banking, capital markets, automotive, FMCG, and enterprise data platforms. Day to day
+tested in banking, capital markets, automotive, and FMCG. Day to day
 that means:
 
 - Breaking a system into testable components and working out where it is most likely to break
@@ -158,7 +172,7 @@ I'm open to discussions about Software QA Engineer, QA Automation, and Data Qual
 - **Email:** insantaufik82@gmail.com
 - **LinkedIn:** https://www.linkedin.com/in/muhamad-insan-taufik
 - **GitHub:** https://github.com/InsanTaufik
-- **Location:** Tangerang Selatan, Indonesia
+- **Location:** West Jakarta, Indonesia
 
 ---
 
@@ -210,15 +224,21 @@ renderer skips that part of the card.
 | `hero.evidence[]` | `{ value, label, count? }` | the figures strip below the hero; `count` animates it |
 | `about.facts[].count` | number | animates the fact counter on scroll-in |
 | `experience.items[].context` | string | the one-paragraph summary shown before the disclosure |
+| `experience.items[].proof` | string | one sourced proof point shown before the metrics and details |
 | `experience.items[].metrics` | `[{ value, label }]` | the metric band at the top of the role |
 | `experience.items[].approach` / `.findings` | `[string]` | the two blocks inside "Approach & findings" |
 | `experience.items[].current` | boolean | adds the pulsing status dot to the period |
-| `projects.items[].featured` | boolean | promotes the card to a full-width two-column layout |
-| `projects.items[].flow` | `["Source", "Step", "Target"]` | renders the arrow pipeline diagram |
+| `experience.items[].via` | string | staffing / contracting employer, shown under the company name |
+| `projects.carousel` | `{ label, autoplay, intervalMs }` | carousel accessible name; autoplay is currently off |
+| `projects.items[]` | one entry per slide, in order | keep 4 or more so the loop has an offscreen slot to wrap through |
+| `projects.items[].featured` | boolean | gives the slide the darker card surface |
+| `projects.items[].flow` | `["Source", "Step", "Target"]` | arrow pipeline diagram, shown at the top of the case study |
 | `projects.items[].problem` / `.approach` / `.result` | string / `[string]` / `[string]` | the case-study disclosure |
-| `projects.items[].metrics` | `[{ value, label }]` | metric band beside the summary |
-| `projects.items[].repo` / `.links` | URL / `[{ label, href }]` | outbound links on the card |
-| `projects.items[].meta` | `{ language, updated }` | baked GitHub metadata (see below) |
+| `projects.items[].metrics` | `[{ value, label }]` | one-line stat strip under the summary |
+| `projects.items[].proof` | string | one sourced proof point on cards with a case study |
+| `projects.items[].image` | `{ src, alt, width, height }` | optional slide image, lazy-loaded; `alt` is required unless decorative |
+| `projects.items[].repo` / `.links` | URL / `[{ label, href }]` | outbound links pinned to the foot of the slide |
+| `projects.items[].meta` | `{ language, updated? }` | baked GitHub metadata (see below) |
 | `skills.groups[]` | `{ id, icon, title, evidence, items[] }` | `evidence` is the accented line under the heading |
 | `about.credentials[].credentialUrl` | URL | makes the certification row a link |
 | `contact.email` | address | used by the "Copy email" button |
@@ -246,9 +266,16 @@ Then set `meta` on that project, e.g. `meta: { language: "Python", updated: "Feb
   browser find-in-page, and deep-linkable
 - Focus rings are accent-coloured and re-map per surface (deep blue on light, pale blue on dark)
 - The mobile menu traps focus while open and returns focus to its trigger on close
-- `prefers-reduced-motion: reduce` disables reveals, the scroll-progress sweep and the
-  disclosure size transition; the availability dot is kept because it carries meaning and
-  moves nothing on the page
+- `prefers-reduced-motion: reduce` stops decorative reveals, the scroll-progress sweep and
+  the availability pulse. Section scrolling, disclosure changes and carousel navigation
+  remain animated by design
+- The projects carousel follows the WAI-ARIA carousel pattern: a `region` with
+  `aria-roledescription="carousel"`, slides as labelled `group`s ("3 of 7: Title"), and a
+  polite live region that announces the slide after a manual change (never during autoplay).
+  Slides that aren't showing are `inert`, so their links can't be tabbed to. Arrow keys work
+  anywhere inside it; prev/next buttons, dots, drag and swipe all work too
+- Carousel autoplay is off. Visitors move slides with arrows, dots, a preview card, keyboard
+  arrows or swipe; cards slide and cross-fade between their preview and full content
 
 ---
 

@@ -26,11 +26,12 @@
   --paper: #f7f7f5;
   --white: #ffffff;
 
-  /* Accent — deep engineering blue. 8.5:1 on white, used sparingly. */
-  --blue-700: #163f66;
-  --blue-600: #1b4f7f;
-  --blue-100: #e8f0f7;
-  --blue-300: #8fc1e8;
+  /* Grayscale accents keep interactive elements distinct. */
+  --accent-light: #3c3c3c;
+  --accent-light-strong: #222222;
+  --accent-light-wash: #f0f0f0;
+  --accent-dark: #d2d2d2;
+  --accent-dark-strong: #f4f4f4;
 
   /* Semantic defaults = light surface */
   --fg: var(--ink-900);
@@ -41,11 +42,11 @@
   --surface-3: var(--paper);
   --line: var(--ink-050);
   --line-strong: var(--ink-100);
-  --accent: var(--blue-600);
-  --accent-strong: var(--blue-700);
-  --accent-wash: var(--blue-100);
+  --accent: var(--accent-light);
+  --accent-strong: var(--accent-light-strong);
+  --accent-wash: var(--accent-light-wash);
   --accent-fg: var(--white);
-  --focus: var(--blue-600);
+  --focus: var(--accent-light);
 
   /* Type */
   --font-display: "DM Serif Display", Georgia, "Times New Roman", serif;
@@ -94,14 +95,12 @@
   --shadow-lg: 0 14px 40px rgb(12 12 15 / 0.1), 0 3px 10px rgb(12 12 15 / 0.05);
 
   /* Motion */
-  --dur-1: 140ms; /* micro: colour, opacity */
-  --dur-2: 220ms; /* state: hover, elevation */
-  --dur-3: 380ms; /* entrance */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 180ms; /* micro: colour, opacity */
+  --dur-2: 320ms; /* state: hover, elevation */
+  --dur-3: 620ms; /* entrance */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Smooth <details> open where the browser can size to auto. */
-  interpolate-size: allow-keywords;
 }
 
 /* Dark surfaces remap the same semantic names, so every component
@@ -118,11 +117,11 @@
   --surface-3: var(--ink-950);
   --line: var(--ink-600);
   --line-strong: var(--ink-500);
-  --accent: var(--blue-300);
-  --accent-strong: #b3d6f1;
-  --accent-wash: rgb(143 193 232 / 0.1);
+  --accent: var(--accent-dark);
+  --accent-strong: var(--accent-dark-strong);
+  --accent-wash: rgb(210 210 210 / 0.1);
   --accent-fg: var(--ink-950);
-  --focus: var(--blue-300);
+  --focus: var(--accent-dark);
 }
 
 /* ── 2. RESET & BASE ───────────────────────────────────────── */
@@ -524,38 +523,43 @@ html.js main.is-booting > section {
 
 /* ── 10. COMPONENTS: disclosure ────────────────────────────── */
 .disclosure {
-  border-block-start: 1px solid var(--line);
-  margin-block-start: var(--s-5);
+  border: 1px solid var(--line-strong);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent-wash);
 }
 
 .disclosure > summary {
   display: flex;
   align-items: center;
-  gap: var(--s-3);
-  min-block-size: 46px;
-  padding-block: var(--s-3);
+  justify-content: space-between;
+  gap: var(--s-4);
+  min-block-size: 48px;
+  padding: var(--s-3) var(--s-4);
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   font-weight: 500;
-  letter-spacing: var(--track-label);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--fg-subtle);
+  color: var(--accent);
   cursor: pointer;
   list-style: none;
-  transition: color var(--dur-1) var(--ease-std);
+  transition: background-color var(--dur-1) var(--ease-std), color var(--dur-1) var(--ease-std);
 }
 
 .disclosure > summary::-webkit-details-marker {
   display: none;
 }
 
-.disclosure > summary:hover {
-  color: var(--accent);
+.disclosure > summary:hover,
+.disclosure > summary:focus-visible {
+  background: var(--surface-2);
+  color: var(--accent-strong);
 }
 
 .disclosure-icon {
-  inline-size: 14px;
-  block-size: 14px;
+  inline-size: 16px;
+  block-size: 16px;
   stroke: currentColor;
   fill: none;
   flex: none;
@@ -567,29 +571,32 @@ html.js main.is-booting > section {
 }
 
 .disclosure-body {
-  display: grid;
-  gap: var(--s-5);
-  padding-block: var(--s-2) var(--s-5);
+  overflow: hidden;
 }
 
-/* Animate open/close where the engine supports sizing to auto. */
-@supports (interpolate-size: allow-keywords) {
-  @media (prefers-reduced-motion: no-preference) {
-    .disclosure::details-content {
-      block-size: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition:
-        block-size var(--dur-3) var(--ease-out),
-        content-visibility var(--dur-3) allow-discrete,
-        opacity var(--dur-2) var(--ease-std);
-    }
+.disclosure-body-inner {
+  display: grid;
+  gap: var(--s-5);
+  padding: var(--s-2) var(--s-4) var(--s-5);
+}
 
-    .disclosure[open]::details-content {
-      block-size: auto;
-      opacity: 1;
-    }
-  }
+.proof-line {
+  border-inline-start: 2px solid var(--accent);
+  padding: var(--s-2) var(--s-4);
+  background: var(--accent-wash);
+  color: var(--fg);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.disclosure.is-hinted > summary {
+  animation: disclosure-hint 750ms var(--ease-out) 1;
+}
+
+@keyframes disclosure-hint {
+  0%, 100% { background: transparent; }
+  45% { background: var(--surface-2); }
 }
 
 .detail-block {
@@ -726,7 +733,7 @@ html.js main.is-booting > section {
   inset-inline: 0;
   inset-block-end: 6px;
   block-size: 1.5px;
-  background: var(--blue-600);
+  background: var(--accent);
   transform: scaleX(0);
   transform-origin: 0 50%;
   transition: transform var(--dur-2) var(--ease-out);
@@ -817,7 +824,7 @@ html.js main.is-booting > section {
   inset-inline-start: 0;
   inline-size: 100%;
   block-size: 2px;
-  background: var(--blue-600);
+  background: var(--accent);
   transform: scaleX(0);
   transform-origin: 0 50%;
 }
@@ -890,7 +897,7 @@ html.js main.is-booting > section {
 }
 
 .mobile-menu a[aria-current="true"] {
-  color: var(--blue-600);
+  color: var(--accent);
 }
 
 /* ── 13. HERO ──────────────────────────────────────────────── */
@@ -1163,6 +1170,12 @@ html.js main.is-booting > section {
   color: var(--fg);
 }
 
+.role-via {
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  color: var(--fg-muted);
+}
+
 .role-location {
   font-size: var(--fs-xs);
   color: var(--fg-subtle);
@@ -1190,35 +1203,45 @@ html.js main.is-booting > section {
 }
 
 /* ── 16. PROJECTS ──────────────────────────────────────────── */
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s-5);
+/* One card per carousel slide. The card is the same on every screen; the
+   carousel below decides how many of them are visible at once. */
+.project {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  position: relative;
 }
 
-.project {
-  display: grid;
+.project-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   gap: var(--s-4);
-  align-content: start;
+  min-inline-size: 0;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 220ms var(--ease-std), transform 360ms var(--ease-out);
+}
+
+.project-preview {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--s-5);
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.18;
+  text-align: center;
+  text-wrap: balance;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms var(--ease-std);
 }
 
 .project--featured {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--s-5) clamp(2rem, 4vw, 3rem);
   background: var(--surface-3);
-}
-
-.project--featured > .project-head,
-.project--featured > .project-aside {
-  align-self: start;
-}
-
-/* Rows that belong to the whole card, not to one column. */
-.project--featured > .tag-row,
-.project--featured > .disclosure,
-.project--featured > .project-links {
-  grid-column: 1 / -1;
 }
 
 .project-head {
@@ -1259,17 +1282,287 @@ html.js main.is-booting > section {
   text-wrap: pretty;
 }
 
-.project-aside {
-  display: grid;
-  gap: var(--s-4);
-  align-content: start;
+/* Headline figures, one line: "0.901 R² SCORE   <10% MAPE". */
+.project-stats {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
 }
 
+.project-stats li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--fg-subtle);
+}
+
+.project-stats strong {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pinned to the foot of the card, so links line up across slides of
+   different lengths. */
 .project-links {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-5);
-  margin-block-start: var(--s-1);
+  margin-block-start: auto;
+  padding-block-start: var(--s-2);
+}
+
+/* Optional project image. Width/height attributes reserve the box. */
+.project-media {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--surface-3);
+}
+
+.project-media img {
+  inline-size: 100%;
+  block-size: auto;
+  object-fit: cover;
+}
+
+/* ── 16b. PROJECT CAROUSEL ─────────────────────────────────── */
+/* One full card sits between two smaller previews. The track takes the width
+   available between the page gutters, including space outside .container. */
+.carousel {
+  --carousel-inline-size: min(calc(100vw - 2 * var(--gutter)), 1320px);
+  --carousel-gap: var(--s-4);
+  --slide-w: min(100%, 600px);
+  --carousel-step: calc(var(--carousel-inline-size) + var(--carousel-gap));
+  --dur-slide: 560ms;
+  display: grid;
+  gap: var(--s-4);
+  position: relative;
+  inline-size: var(--carousel-inline-size);
+  max-inline-size: none;
+  margin-inline-start: calc((100% - var(--carousel-inline-size)) / 2);
+}
+
+@media (min-width: 900px) {
+  .carousel.is-multi {
+    --slide-w: clamp(330px, 37vw, 410px);
+    --carousel-step: calc(var(--slide-w) * 0.82 + var(--carousel-gap));
+    --carousel-inline-size: min(
+      calc(100vw - 2 * var(--gutter)),
+      calc(2 * var(--carousel-step) + 0.7 * var(--slide-w) + 64px)
+    );
+  }
+}
+
+.carousel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.carousel-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-block-start: var(--s-4);
+}
+
+.carousel-btn {
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--fg);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease-std),
+    background-color var(--dur-1) var(--ease-std);
+}
+
+.carousel-btn:hover {
+  border-color: var(--fg);
+  background: var(--surface-3);
+}
+
+.carousel-btn svg {
+  inline-size: 16px;
+  block-size: 16px;
+  stroke: currentColor;
+  fill: none;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.carousel-prev:hover svg {
+  transform: translateX(-2px);
+}
+
+.carousel-next:hover svg {
+  transform: translateX(2px);
+}
+
+/* Clip slides only while they enter or leave; visible cards fit the viewport. */
+.carousel-viewport {
+  position: relative;
+  overflow-x: clip;
+  touch-action: pan-y pinch-zoom; /* the browser keeps vertical scroll; we take horizontal */
+  cursor: grab;
+}
+
+.carousel-viewport:focus-visible {
+  border-radius: var(--r-lg);
+  outline-offset: 6px;
+}
+
+.carousel-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--carousel-gap);
+  --drag: 0px;
+}
+
+.carousel-controls .carousel-btn {
+  box-shadow: var(--shadow-md);
+}
+
+.carousel-track.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.carousel-slide {
+  grid-area: 1 / 1;
+  inline-size: var(--slide-w);
+  justify-self: center;
+  display: flex; /* the card fills the row, so all cards are the same height */
+  transform: translateX(
+    calc(var(--rel, 0) * var(--carousel-step) + var(--drag, 0px))
+  ) scale(var(--card-scale, 1));
+  transition:
+    transform var(--dur-slide) var(--ease-out),
+    opacity var(--dur-2) var(--ease-std);
+}
+
+.carousel-slide > .project {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: 500px;
+  border-radius: 24px;
+}
+
+.carousel-slide:not(.is-active) .project-content {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.carousel-slide:not(.is-active) .project-preview {
+  opacity: 1;
+}
+
+.carousel .carousel-slide:not(.is-visible) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .carousel.is-multi .carousel-slide:not(.is-active) {
+    --card-scale: 0.7;
+    opacity: 0.68;
+    cursor: pointer;
+  }
+
+  .carousel.is-multi .carousel-slide:not(.is-active) .project {
+    justify-content: center;
+    text-align: center;
+    background: radial-gradient(circle at 30% 20%, rgb(210 210 210 / 0.1), transparent 62%), var(--surface-2);
+  }
+
+  .carousel.is-multi .carousel-slide.is-visible:not(.is-active):hover {
+    opacity: 0.9;
+  }
+
+  .carousel.is-multi .carousel-slide:not(.is-visible) {
+    opacity: 0;
+  }
+
+  .carousel.is-multi .carousel-controls {
+    position: absolute;
+    inset: 50% 0 auto;
+    z-index: 2;
+    margin: 0;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .carousel.is-multi .carousel-controls .carousel-btn {
+    pointer-events: auto;
+  }
+}
+
+.carousel-track.is-dragging .carousel-slide {
+  transition: none;
+}
+
+/* Slide indicators: 24px hit area (WCAG 2.5.8) around an 8px dot. */
+.carousel-dots {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.carousel-dot {
+  display: grid;
+  place-items: center;
+  inline-size: 28px;
+  block-size: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  cursor: pointer;
+}
+
+.carousel-dot::before {
+  content: "";
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--r-pill);
+  background: var(--fg-subtle);
+  opacity: 0.8; /* 4.1:1 on the dark surface; 55% was 2.6:1, under WCAG 1.4.11's 3:1 */
+  transition:
+    inline-size var(--dur-2) var(--ease-out),
+    background-color var(--dur-1) var(--ease-std),
+    opacity var(--dur-1) var(--ease-std);
+}
+
+.carousel-dot:hover::before {
+  opacity: 1;
+}
+
+.carousel-dot[aria-current="true"]::before {
+  inline-size: 22px;
+  background: var(--accent);
+  opacity: 1;
 }
 
 /* ── 17. SKILLS ────────────────────────────────────────────── */
@@ -1644,13 +1937,13 @@ a.cred-row:hover .cred-arrow {
 }
 
 .site-footer :focus-visible {
-  outline-color: var(--blue-300);
+  outline-color: var(--accent-dark);
 }
 
 /* ── 21. SCROLL REVEAL ─────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(16px);
   transition:
     opacity var(--dur-3) var(--ease-out),
     transform var(--dur-3) var(--ease-out);
@@ -1662,16 +1955,16 @@ a.cred-row:hover .cred-arrow {
 }
 
 .reveal[data-delay="1"] {
-  transition-delay: 60ms;
+  transition-delay: 90ms;
 }
 .reveal[data-delay="2"] {
-  transition-delay: 120ms;
-}
-.reveal[data-delay="3"] {
   transition-delay: 180ms;
 }
+.reveal[data-delay="3"] {
+  transition-delay: 270ms;
+}
 .reveal[data-delay="4"] {
-  transition-delay: 240ms;
+  transition-delay: 360ms;
 }
 
 /* No JS: never leave content hidden. */
@@ -1694,14 +1987,6 @@ html.no-js .reveal {
 
 @media (max-width: 900px) {
   .about-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .projects-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .project--featured {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -1806,39 +2091,25 @@ html.no-js .reveal {
 
 @media (max-width: 380px) {
   .facts-grid,
-  .evidence-strip {
+  .evidence-strip,
+  .skills-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
 /* ── 23. REDUCED MOTION ────────────────────────────────────── */
-/* Reveals, transitions and the scroll-progress sweep are switched off.
-   One low-intensity, in-place loop is kept — the availability dot —
-   because it carries meaning and never moves anything on the page. */
+/* Interaction feedback remains animated by choice; decorative motion stops. */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-  }
-
   .reveal {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
   }
 
-  .status-dot {
-    animation-name: status-pulse !important;
-    animation-duration: 3s !important;
-    animation-timing-function: var(--ease-std) !important;
-    animation-iteration-count: infinite !important;
+  .status-dot,
+  .scroll-progress,
+  .disclosure.is-hinted > summary {
+    animation: none !important;
   }
 }
 
@@ -1855,6 +2126,37 @@ html.no-js .reveal {
   .disclosure::details-content {
     block-size: auto !important;
     opacity: 1 !important;
+  }
+
+  /* Paper has no second slide: lay every project out in a column. */
+  .carousel-bar,
+  .carousel-dots {
+    display: none !important;
+  }
+
+  .carousel-viewport {
+    overflow: visible;
+  }
+
+  .carousel-track {
+    display: block;
+  }
+
+  .carousel-slide {
+    inline-size: 100%;
+    margin-block-end: var(--s-4);
+    opacity: 1 !important;
+    transform: none !important;
+    break-inside: avoid;
+  }
+
+  .project-preview {
+    display: none !important;
+  }
+
+  .project-content {
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   main > section {

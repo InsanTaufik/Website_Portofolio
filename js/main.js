@@ -4,8 +4,8 @@
  *
  * Motion policy: entrance reveals run once via IntersectionObserver,
  * the scroll-progress bar is a native CSS scroll timeline where the
- * browser has one, and everything non-essential is dropped under
- * prefers-reduced-motion.
+ * browser has one. Interactive transitions run for every motion setting;
+ * decorative reveals stay still when reduced motion is requested.
  */
 (function () {
   "use strict";
@@ -21,6 +21,12 @@
       '<svg viewBox="0 0 24 24" stroke-width="2" data-nudge="down" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
     "arrow-right":
       '<svg viewBox="0 0 24 24" stroke-width="2" data-nudge="right" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    "arrow-left":
+      '<svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    pause:
+      '<svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><line x1="9" y1="5" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/></svg>',
+    play:
+      '<svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><polygon points="7 4 19 12 7 20 7 4"/></svg>',
     download:
       '<svg viewBox="0 0 24 24" stroke-width="2" data-nudge="down" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
     "chevron-down":
@@ -70,9 +76,9 @@
     return ` download${item.downloadName ? '="' + esc(item.downloadName) + '"' : ""}`;
   }
 
-  function tags(list) {
+  function tags(list, label) {
     if (!Array.isArray(list) || !list.length) return "";
-    return `<ul class="tag-row">${list
+    return `<ul class="tag-row"${label ? ` aria-label="${esc(label)}"` : ""}>${list
       .map((t) => `<li class="tag">${esc(t)}</li>`)
       .join("")}</ul>`;
   }
@@ -128,11 +134,20 @@
 
   function disclosure(summaryLabel, bodyHtml) {
     if (!bodyHtml) return "";
+    const openLabel = summaryLabel.replace(/^View\b/, "Hide");
     return `
       <details class="disclosure">
-        <summary>${ICON["chevron-down"]}${esc(summaryLabel)}</summary>
-        <div class="disclosure-body">${bodyHtml}</div>
+        <summary data-closed-label="${esc(summaryLabel)}" data-open-label="${esc(
+      openLabel
+    )}"><span class="disclosure-label">${esc(
+      summaryLabel
+    )}</span>${ICON["chevron-down"]}</summary>
+        <div class="disclosure-body"><div class="disclosure-body-inner">${bodyHtml}</div></div>
       </details>`;
+  }
+
+  function proofLine(value) {
+    return value ? `<p class="proof-line">${esc(value)}</p>` : "";
   }
 
   /* ── Renderers ───────────────────────────────────────────── */
@@ -260,13 +275,15 @@
                 : ""
             }${esc(job.period)}</p>
             <p class="role-company">${esc(job.company)}</p>
+            ${job.via ? `<p class="role-via">${esc(job.via)}</p>` : ""}
             <p class="role-location">${esc(job.location)}</p>
           </div>
           <div class="role-body">
             <h3 class="role-title">${esc(job.role)}</h3>
             <p class="role-context">${esc(job.context)}</p>
-            ${metricBand(job.metrics)}
+            ${proofLine(job.proof)}
             ${disclosure(exp.disclosureLabel, body)}
+            ${metricBand(job.metrics)}
           </div>
         </article>`;
       })
@@ -304,11 +321,48 @@
       .join('<span class="sep" aria-hidden="true">/</span>')}</p>`;
   }
 
+  /** A slide's headline figures on one line. The full band stays on experience roles. */
+  function statLine(list) {
+    if (!Array.isArray(list) || !list.length) return "";
+    return `<ul class="project-stats">${list
+      .map((m) => `<li><strong>${esc(m.value)}</strong>${esc(m.label)}</li>`)
+      .join("")}</ul>`;
+  }
+
+  /** Optional. Width/height reserve the box so a lazy image never shifts the slide. */
+  function projectMedia(p) {
+    const im = p.image;
+    if (!im || !im.src) return "";
+    return `<figure class="project-media"><img src="${esc(im.src)}" alt="${esc(
+      im.alt || ""
+    )}" width="${esc(im.width)}" height="${esc(
+      im.height
+    )}" loading="lazy" decoding="async" draggable="false" /></figure>`;
+  }
+
+  /* The carousel is a ring of slides. Slide i starts `rel` steps from the
+     active slide, wrapped into [-half, n-1-half]; initCarousel() uses the same
+     maths, so the first paint already matches what the script will produce. */
+  const ringHalf = (n) => Math.floor(n / 2);
+  const ringWrap = (d, n) => {
+    d = ((d % n) + n) % n;
+    return d > n - 1 - ringHalf(n) ? d - n : d;
+  };
+  const pad2 = (n) => String(n).padStart(2, "0");
+
   function renderProjects() {
     const pr = portfolioData.projects;
-    const cards = pr.items
-      .map((p) => {
+    const car = pr.carousel || {};
+    const total = pr.items.length;
+    const showThree = total > 2 && window.matchMedia("(min-width: 900px)").matches;
+
+    const slides = pr.items
+      .map((p, i) => {
+        // Every slide has the same anatomy — name, description, stack, link — so
+        // the shared row height stays close to each slide's own. Anything longer
+        // (the pipeline diagram, problem, approach, result) sits behind the case study.
         const caseBody =
+          flowDiagram(p.flow, "Pipeline for " + p.title) +
           (p.problem
             ? `<div class="detail-block"><h4>Problem</h4><p class="project-summary">${esc(
                 p.problem
@@ -317,29 +371,78 @@
           detailBlock("Approach", p.approach) +
           detailBlock("Result", p.result);
 
-        const aside =
-          flowDiagram(p.flow, "Pipeline for " + p.title) + metricBand(p.metrics);
-
+        // The current project and its neighbours form the desktop preview.
         return `
-        <article class="project card card--interactive reveal${
-          p.featured ? " project--featured" : ""
-        }">
-          <div class="project-head">
-            ${projectEyebrow(p)}
-            <h3 class="project-title">${esc(p.title)}</h3>
-            <p class="project-summary">${esc(p.summary)}</p>
-          </div>
-          ${aside ? `<div class="project-aside">${aside}</div>` : ""}
-          ${tags(p.stack)}
-          ${disclosure(pr.disclosureLabel, caseBody)}
-          ${projectLinks(p)}
-        </article>`;
+        <div class="carousel-slide${i === 0 ? " is-active" : ""}${
+          i === 0 || (showThree && (i === 1 || i === total - 1)) ? " is-visible" : ""
+        }"
+             style="--rel:${ringWrap(i, total)}"
+             role="group" aria-roledescription="slide"
+             aria-label="${i + 1} of ${total}: ${esc(p.title)}"${
+          i === 0 || (showThree && (i === 1 || i === total - 1)) ? "" : " inert"
+        }>
+          <article class="project card${p.featured ? " project--featured" : ""}">
+            <div class="project-preview" aria-hidden="true">${esc(p.title)}</div>
+            <div class="project-content"${i === 0 ? "" : " inert"}>
+              <div class="project-head">
+                ${projectEyebrow(p)}
+                <h3 class="project-title">${esc(p.title)}</h3>
+                <p class="project-summary">${esc(p.summary)}</p>
+              </div>
+              ${projectMedia(p)}
+              ${caseBody ? proofLine(p.proof) : ""}
+              ${disclosure(pr.disclosureLabel, caseBody)}
+              ${statLine(p.metrics)}
+              ${tags(p.stack, "Tech stack")}
+              ${projectLinks(p)}
+            </div>
+          </article>
+        </div>`;
       })
+      .join("");
+
+    const dots = pr.items
+      .map(
+        (p, i) =>
+          `<li><button type="button" class="carousel-dot" data-index="${i}"
+                aria-label="Show project ${i + 1} of ${total}: ${esc(p.title)}"${
+            i === 0 ? ' aria-current="true"' : ""
+          }></button></li>`
+      )
       .join("");
 
     byId("projects-root").innerHTML =
       sectionHead(pr.sectionLabel, "projects-heading", pr.title, pr.intro) +
-      `<div class="projects-grid">${cards}</div>`;
+      `
+      <div class="carousel reveal${total > 2 ? " is-multi" : ""}" id="projects-carousel" role="region"
+           aria-roledescription="carousel" aria-label="${esc(
+             car.label || "Project highlights"
+           )}">
+        <div class="carousel-bar">
+          <p class="mono-label carousel-count" aria-hidden="true"><span class="carousel-count-now">${pad2(
+            1
+          )}</span> / ${pad2(total)}</p>
+          <button type="button" class="carousel-btn carousel-pause" hidden
+                  aria-label="Pause automatic slide show">${ICON.pause}</button>
+        </div>
+        <div class="carousel-viewport" tabindex="0" role="group"
+             aria-label="Project slides" aria-describedby="projects-carousel-hint">
+          <div class="carousel-track" id="projects-track">${slides}</div>
+          <div class="carousel-controls">
+            <button type="button" class="carousel-btn carousel-prev"
+                    aria-label="Previous project" aria-controls="projects-track">${
+                      ICON["arrow-left"]
+                    }</button>
+            <button type="button" class="carousel-btn carousel-next"
+                    aria-label="Next project" aria-controls="projects-track">${
+                      ICON["arrow-right"]
+                    }</button>
+          </div>
+        </div>
+        <ul class="carousel-dots" aria-label="Choose a project">${dots}</ul>
+        <p class="visually-hidden" id="projects-carousel-hint">Use the left and right arrow keys to change project.</p>
+        <div class="visually-hidden" id="projects-carousel-status" aria-live="polite" aria-atomic="true"></div>
+      </div>`;
   }
 
   function renderSkills() {
@@ -532,8 +635,8 @@
       const decimals = (String(target).split(".")[1] || "").length;
       const start = performance.now();
       const tick = (now) => {
-        const t = Math.min(1, (now - start) / 900);
-        const v = target * (1 - Math.pow(1 - t, 3));
+        const t = Math.min(1, (now - start) / 1200);
+        const v = target * (0.5 - Math.cos(Math.PI * t) / 2);
         el.textContent = decimals ? v.toFixed(decimals) : Math.round(v).toLocaleString();
         if (t < 1) requestAnimationFrame(tick);
         else el.textContent = final;
@@ -727,26 +830,157 @@
 
   /* ── Anchor navigation ───────────────────────────────────── */
   function initAnchors() {
+    const duration = 560;
+    const scrollingKeys = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "]);
+    let frame = 0;
+    let restoreScrollBehavior = null;
+
+    function cancelScroll() {
+      if (frame) window.cancelAnimationFrame(frame);
+      frame = 0;
+      if (restoreScrollBehavior !== null) {
+        document.documentElement.style.scrollBehavior = restoreScrollBehavior;
+        restoreScrollBehavior = null;
+      }
+    }
+
+    window.addEventListener("wheel", cancelScroll, { passive: true });
+    window.addEventListener("touchstart", cancelScroll, { passive: true });
+    window.addEventListener("pointerdown", cancelScroll, { passive: true });
+    window.addEventListener("keydown", (e) => {
+      if (scrollingKeys.has(e.key)) cancelScroll();
+    });
+
     document.addEventListener("click", (e) => {
       const a = e.target.closest('a[href^="#"]');
       if (!a) return;
       const href = a.getAttribute("href");
       if (!href || href === "#") return;
-      const target = document.querySelector(href);
+      const target = document.getElementById(decodeURIComponent(href.slice(1)));
       if (!target) return;
 
       e.preventDefault();
       closeMobile(false);
-      target.scrollIntoView({
-        behavior: reduced() ? "auto" : "smooth",
-        block: "start",
-      });
-      // Move focus without a second scroll jump, so the keyboard lands
-      // where the page just went.
+      cancelScroll();
+      const start = window.scrollY;
+      const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const destination = Math.max(0, Math.min(max, start + target.getBoundingClientRect().top - offset));
+      const started = performance.now();
+      restoreScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = "auto";
+
+      function tick(now) {
+        const t = Math.min(1, (now - started) / duration);
+        const eased = (1 - Math.cos(Math.PI * t)) / 2;
+        window.scrollTo({ top: start + (destination - start) * eased, behavior: "instant" });
+        if (t < 1) frame = window.requestAnimationFrame(tick);
+        else cancelScroll();
+      }
+      if (Math.abs(destination - start) > 1) frame = window.requestAnimationFrame(tick);
+      else cancelScroll();
+
+      // Keep keyboard focus at the destination without a second scroll jump.
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
       if (history.replaceState) history.replaceState(null, "", href);
     });
+  }
+
+  /* Keep <details> native, then animate its body where Web Animations is
+     available. The desired state is separate from details.open while closing. */
+  const disclosureTargets = new WeakMap();
+  const disclosureAnimations = new WeakMap();
+
+  function syncDisclosureLabel(details) {
+    const summary = details.querySelector("summary");
+    const label = summary && summary.querySelector(".disclosure-label");
+    if (!label) return;
+    const open = disclosureTargets.has(details)
+      ? disclosureTargets.get(details)
+      : details.open;
+    label.textContent = summary.dataset[open ? "openLabel" : "closedLabel"];
+  }
+
+  function setDisclosureOpen(details, open) {
+    const body = details.querySelector(".disclosure-body");
+    const running = disclosureAnimations.get(details);
+    if (running && disclosureTargets.get(details) === open) {
+      return running.finished.catch(() => {});
+    }
+    if (!running && details.open === open) return Promise.resolve();
+
+    const fromHeight = running
+      ? body.getBoundingClientRect().height
+      : open ? 0 : body.getBoundingClientRect().height;
+    const fromOpacity = running
+      ? parseFloat(getComputedStyle(body).opacity)
+      : open ? 0 : 1;
+    if (running) running.cancel();
+    disclosureTargets.set(details, open);
+    if (open) details.open = true;
+    syncDisclosureLabel(details);
+
+    if (!body.animate) {
+      details.open = open;
+      syncDisclosureLabel(details);
+      return Promise.resolve();
+    }
+
+    body.style.height = fromHeight + "px";
+    body.style.overflow = "hidden";
+    const toHeight = open ? body.scrollHeight : 0;
+    const animation = body.animate(
+      [
+        { height: fromHeight + "px", opacity: fromOpacity },
+        { height: toHeight + "px", opacity: open ? 1 : 0 },
+      ],
+      { duration: 320, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)", fill: "forwards" }
+    );
+    disclosureAnimations.set(details, animation);
+    return animation.finished
+      .then(() => {
+        if (disclosureAnimations.get(details) !== animation) return;
+        disclosureAnimations.delete(details);
+        details.open = open;
+        animation.cancel();
+        body.style.removeProperty("height");
+        body.style.removeProperty("overflow");
+        syncDisclosureLabel(details);
+      })
+      .catch(() => {});
+  }
+
+  function initDisclosures() {
+    document.querySelectorAll("details.disclosure").forEach((details) => {
+      const summary = details.querySelector("summary");
+      const body = details.querySelector(".disclosure-body");
+      summary.addEventListener("click", (event) => {
+        if (!body.animate) return; // native toggle remains the fallback
+        event.preventDefault();
+        const current = disclosureTargets.has(details)
+          ? disclosureTargets.get(details)
+          : details.open;
+        setDisclosureOpen(details, !current);
+      });
+      details.addEventListener("toggle", () => syncDisclosureLabel(details));
+    });
+
+    if (!("IntersectionObserver" in window)) return;
+    const first = [
+      document.querySelector("#experience .disclosure"),
+      document.querySelector("#projects .disclosure"),
+    ].filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const details = entry.target;
+        details.classList.add("is-hinted");
+        window.setTimeout(() => details.classList.remove("is-hinted"), 800);
+        observer.unobserve(details);
+      });
+    }, { threshold: 0.5 });
+    first.forEach((details) => observer.observe(details));
   }
 
   /* ── Copy email ──────────────────────────────────────────── */
@@ -782,6 +1016,399 @@
     });
   }
 
+  /* ── Projects carousel ───────────────────────────────────────
+     Every slide sits in the same grid cell and is offset by one custom
+     property, --rel: its distance from the active slide, in layout steps.
+     CSS turns that into translateX, so nothing is ever measured to lay it out
+     and the tallest slide sets one constant height (no layout shift).
+
+     Slides live on a ring. Moving by `delta` shifts every --rel by the same
+     amount; a slide that would leave one edge is re-parked offscreen on the
+     other side, so last → first and first → last slide in the right direction
+     instead of rewinding the whole track. */
+  function initCarousel() {
+    const root = byId("projects-carousel");
+    if (!root) return;
+
+    const viewport = root.querySelector(".carousel-viewport");
+    const track = root.querySelector(".carousel-track");
+    const slides = Array.from(root.querySelectorAll(".carousel-slide"));
+    const dots = Array.from(root.querySelectorAll(".carousel-dot"));
+    const prevBtn = root.querySelector(".carousel-prev");
+    const nextBtn = root.querySelector(".carousel-next");
+    const pauseBtn = root.querySelector(".carousel-pause");
+    const countNow = root.querySelector(".carousel-count-now");
+    const status = byId("projects-carousel-status");
+    const cfg = portfolioData.projects.carousel || {};
+    const n = slides.length;
+
+    if (n < 2) {
+      root.querySelector(".carousel-bar").hidden = true;
+      root.querySelector(".carousel-dots").hidden = true;
+      return;
+    }
+
+    let active = 0;
+    const rel = slides.map((_, i) => ringWrap(i, n));
+    const desktop = window.matchMedia("(min-width: 900px)");
+    const showThree = () => root.classList.contains("is-multi") && desktop.matches;
+    const isVisible = (i) =>
+      i === active || (showThree() && (i === (active + 1) % n || i === (active - 1 + n) % n));
+
+    /* ── Positioning ── */
+    /** Set one slide's --rel. `animate: false` snaps just that slide, so slides
+        that are mid-transition are left alone. */
+    function place(i, v, animate) {
+      const s = slides[i];
+      if (!animate) s.style.transition = "none";
+      s.style.setProperty("--rel", v);
+      if (!animate) {
+        void s.offsetWidth; // flush, so the snap isn't batched with the next change
+        s.style.transition = "";
+      }
+    }
+
+    /** Wrap any slide that drifted past the edge. It is offscreen by then. */
+    function settle() {
+      for (let i = 0; i < n; i++) {
+        const w = ringWrap(rel[i], n);
+        if (w !== rel[i]) {
+          rel[i] = w;
+          place(i, w, false);
+        }
+      }
+    }
+
+    function show() {
+      slides.forEach((s, i) => {
+        const on = i === active;
+        s.classList.toggle("is-active", on);
+        const visible = isVisible(i);
+        s.classList.toggle("is-visible", visible);
+        // Only cards wholly inside the viewport belong in the tab order.
+        s.toggleAttribute("inert", !visible);
+        s.querySelector(".project-content").toggleAttribute("inert", !on);
+        s.style.setProperty("--rel", rel[i]);
+      });
+      dots.forEach((d, i) => {
+        if (i === active) d.setAttribute("aria-current", "true");
+        else d.removeAttribute("aria-current");
+      });
+      countNow.textContent = pad2(active + 1);
+    }
+
+    const toMs = (t) => (t.slice(-2) === "ms" ? parseFloat(t) : parseFloat(t) * 1000);
+    const slideMs = () =>
+      Math.max.apply(
+        null,
+        getComputedStyle(slides[0])
+          .transitionDuration.split(",")
+          .map((t) => toMs(t.trim()))
+      );
+
+    let settleTimer = 0;
+    let moving = false;
+    let closingForMove = false;
+    let queued = null;
+    function afterMove() {
+      settle();
+      // A case study left open on a slide that has gone would keep the whole
+      // row tall, so close it once the slide is out of sight.
+      slides.forEach((s, i) => {
+        const d = !isVisible(i) && s.querySelector("details[open]");
+        if (d) d.open = false;
+      });
+      moving = false;
+      if (queued) {
+        const request = queued;
+        queued = null;
+        const delta = ringWrap(request.target - active, n);
+        if (delta) move(delta, request.announce);
+      }
+    }
+
+    function move(delta, announce) {
+      if (!delta) return;
+      const nextActive = (((active + delta) % n) + n) % n;
+      if (moving || closingForMove) {
+        queued = { target: nextActive, announce };
+        return;
+      }
+      const openDetail = slides[active].querySelector("details[open]");
+      if (openDetail) {
+        closingForMove = true;
+        setDisclosureOpen(openDetail, false).then(() => {
+          closingForMove = false;
+          if (disclosureTargets.get(openDetail) !== false) {
+            queued = null;
+            return;
+          }
+          const request = queued || { target: nextActive, announce };
+          queued = null;
+          const step = ringWrap(request.target - active, n);
+          if (step) move(step, request.announce);
+        });
+        return;
+      }
+      moving = true;
+      settle();
+      const nextVisible = (i) =>
+        i === nextActive ||
+        (showThree() && (i === (nextActive + 1) % n || i === (nextActive - 1 + n) % n));
+      // Move focus only if its card leaves the visible viewport.
+      if (slides.some((s, i) => !nextVisible(i) && s.contains(document.activeElement))) {
+        viewport.focus({ preventScroll: true });
+      }
+
+      for (let i = 0; i < n; i++) {
+        const end = rel[i] - delta;
+        const w = ringWrap(end, n);
+        if (w !== end && !isVisible(i)) {
+          // Wraps from one offscreen side to the other. Start it on the far side
+          // of where it lands so the whole ring travels as one rigid track.
+          place(i, w + delta, false);
+          rel[i] = w;
+        } else {
+          rel[i] = end; // may sit past the edge; settle() wraps it once offscreen
+        }
+      }
+      active = nextActive;
+      show();
+
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(afterMove, slideMs() + 80);
+      if (announce) status.textContent = slides[active].getAttribute("aria-label");
+    }
+
+    /* ── Autoplay ──
+       Off under reduced motion. Pauses on hover, on focus, while a case study is
+       open, offscreen, and in a background tab. The first manual navigation
+       stops it for good; the pause button is the only way back in until then. */
+    let autoTimer = 0;
+    let autoStopped = false;
+    let userPaused = false;
+    let hovering = false;
+    let focused = false;
+    let caseOpen = false;
+    let inView = !("IntersectionObserver" in window);
+
+    const autoAllowed = () => !!cfg.autoplay && !reduced() && !autoStopped;
+    const autoRunning = () =>
+      autoAllowed() && !userPaused && !hovering && !focused && !caseOpen && inView && !document.hidden;
+
+    function syncAuto() {
+      window.clearTimeout(autoTimer);
+      autoTimer = 0;
+      if (!autoRunning()) return;
+      autoTimer = window.setTimeout(() => {
+        move(1, false);
+        syncAuto();
+      }, cfg.intervalMs || 8000);
+    }
+
+    function syncPause() {
+      pauseBtn.hidden = !autoAllowed();
+      pauseBtn.innerHTML = userPaused ? ICON.play : ICON.pause;
+      pauseBtn.setAttribute(
+        "aria-label",
+        userPaused ? "Start automatic slide show" : "Pause automatic slide show"
+      );
+    }
+
+    /** Anything the user does to change slide comes through here. */
+    function manual(delta) {
+      if (!delta) return;
+      if (!autoStopped) {
+        autoStopped = true;
+        if (document.activeElement === pauseBtn) viewport.focus({ preventScroll: true });
+        syncPause();
+        syncAuto();
+      }
+      move(delta, true);
+    }
+
+    prevBtn.addEventListener("click", () => manual(-1));
+    nextBtn.addEventListener("click", () => manual(1));
+    slides.forEach((slide, i) => {
+      slide.addEventListener("click", () => {
+        if (!showThree() || swallowClick || i === active) return;
+        const direction = ringWrap(i - active, n);
+        if (Math.abs(direction) === 1) manual(direction);
+      });
+    });
+    // A dot takes the shortest way round the ring.
+    dots.forEach((d, i) => d.addEventListener("click", () => manual(ringWrap(i - active, n))));
+    if (desktop.addEventListener) desktop.addEventListener("change", show);
+    else desktop.addListener(show);
+    pauseBtn.addEventListener("click", () => {
+      userPaused = !userPaused;
+      syncPause();
+      syncAuto();
+    });
+
+    root.addEventListener("keydown", (e) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        manual(1);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        manual(-1);
+      }
+    });
+
+    root.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse") return;
+      hovering = true;
+      syncAuto();
+    });
+    root.addEventListener("pointerleave", (e) => {
+      if (e.pointerType !== "mouse") return;
+      hovering = false;
+      syncAuto();
+    });
+    root.addEventListener("focusin", () => {
+      focused = true;
+      syncAuto();
+    });
+    root.addEventListener("focusout", (e) => {
+      focused = root.contains(e.relatedTarget);
+      syncAuto();
+    });
+    // `toggle` doesn't bubble, so listen in the capture phase.
+    root.addEventListener(
+      "toggle",
+      () => {
+        caseOpen = !!root.querySelector("details[open]");
+        syncAuto();
+      },
+      true
+    );
+    document.addEventListener("visibilitychange", syncAuto);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        (entries) => {
+          inView = entries[entries.length - 1].isIntersecting;
+          syncAuto();
+        },
+        { threshold: 0.35 }
+      ).observe(root);
+    }
+    if (mqReduced.addEventListener) {
+      mqReduced.addEventListener("change", () => {
+        syncPause();
+        syncAuto();
+      });
+    }
+
+    /* ── Drag / swipe (pointer events) ──
+       touch-action: pan-y on the viewport leaves vertical scrolling to the
+       browser; horizontal moves arrive here. Drag is only claimed once the
+       gesture is clearly horizontal, so a tap on a link or <summary> is a tap. */
+    let drag = null;
+    let swallowClick = false;
+
+    const stepPx = () =>
+      (showThree() ? slides[active].offsetWidth * 0.82 : viewport.clientWidth) +
+      (parseFloat(getComputedStyle(track).columnGap) || 0);
+
+    // Move/up are tracked on `window` for as long as a press is down, not on the
+    // viewport: a fast pointer can leave the viewport before the drag has been
+    // claimed (and captured), and the release must be seen wherever it happens.
+    const onMove = (e) => trackMove(e);
+    const onUp = (e) => endDrag(e, false);
+    const onCancel = (e) => endDrag(e, true);
+    function stopTracking() {
+      drag = null;
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+    }
+
+    viewport.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (moving || closingForMove) return;
+      if (drag && drag.live) return; // a second finger
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, live: false, step: 0, samples: [] };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onCancel);
+    });
+
+    function trackMove(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+
+      if (!drag.live) {
+        // Vertical intent: let the page scroll.
+        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+          stopTracking();
+          return;
+        }
+        if (Math.abs(dx) < 8) return;
+        drag.live = true;
+        drag.step = stepPx();
+        settle();
+        try {
+          viewport.setPointerCapture(e.pointerId);
+        } catch (_) {}
+        track.classList.add("is-dragging");
+        if (window.getSelection) window.getSelection().removeAllRanges();
+      }
+
+      // One swipe moves at most one slide.
+      drag.dx = Math.max(-drag.step, Math.min(drag.step, dx));
+      track.style.setProperty("--drag", drag.dx + "px");
+
+      const now = performance.now();
+      drag.samples.push([now, e.clientX]);
+      while (drag.samples.length > 1 && now - drag.samples[0][0] > 100) drag.samples.shift();
+    }
+
+    function endDrag(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag;
+      stopTracking();
+      if (!d.live) return;
+
+      try {
+        viewport.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+
+      // The click that ends a drag is not a click on whatever was underneath.
+      swallowClick = true;
+      window.setTimeout(() => (swallowClick = false), 60);
+      const a = d.samples[0];
+      const b = d.samples[d.samples.length - 1];
+      const v = a && b && b[0] > a[0] ? (b[1] - a[1]) / (b[0] - a[0]) : 0; // px per ms
+      const far = Math.abs(d.dx) > Math.min(96, d.step * 0.2);
+      const flick = Math.abs(v) > 0.4 && Math.abs(d.dx) > 24;
+      // Commit the dragged pose with transitions restored before changing its
+      // destination. The next style change now uses the same slide transition
+      // as arrows, dots, and preview clicks.
+      track.classList.remove("is-dragging");
+      void slides[active].offsetWidth;
+      if (!cancelled && (far || flick)) manual(d.dx < 0 ? 1 : -1);
+      track.style.setProperty("--drag", "0px");
+    }
+
+    viewport.addEventListener(
+      "click",
+      (e) => {
+        if (!swallowClick) return;
+        e.preventDefault();
+        e.stopPropagation();
+      },
+      true
+    );
+    // Stops the browser starting its own link/image drag, which would cancel ours.
+    viewport.addEventListener("dragstart", (e) => e.preventDefault());
+
+    syncPause();
+    syncAuto();
+  }
+
   /* ── Boot ────────────────────────────────────────────────── */
   /* Content first. This script is the last thing in <body>, so every root
      element already exists — rendering here rather than on DOMContentLoaded
@@ -813,6 +1440,8 @@
     initScrollProgressFallback();
     initReveal();
     initCounters();
+    initDisclosures();
+    initCarousel();
     initCopyEmail();
 
     // If the motion preference flips mid-session, don't strand hidden content.
