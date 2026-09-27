@@ -1493,6 +1493,9 @@ html.js main.is-booting > section {
 /* Clip slides only while they enter or leave; visible cards fit the viewport. */
 .carousel-viewport {
   position: relative;
+  /* Older iOS Safari ignores clip; hidden keeps offscreen slides from
+     widening the entire page there. */
+  overflow-x: hidden;
   overflow-x: clip;
   touch-action: pan-y pinch-zoom; /* the browser keeps vertical scroll; we take horizontal */
   cursor: grab;
