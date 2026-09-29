@@ -1,191 +1,109 @@
 # Muhamad Insan Taufik — Software QA Engineer Portfolio
 
-> Software QA Engineer | Functional, API, Mobile & Web Testing | Data Validation & BI Testing
+> Software QA Engineer | Manual & Automation Testing, API & Data Validation
+
+**Live site:** https://insantaufik.github.io/Website_Portofolio/
 
 ## Overview
 
-I am an ISTQB-certified Software QA Engineer focused on product quality and reliability through systematic functional, API, mobile, web, and embedded-BI testing, plus large-scale data-migration and ETL validation. With experience across banking, capital markets, automotive, FMCG, and enterprise data platforms, I pair QA rigour with strong SQL and Python/Pandas skills for data validation and test automation.
+Software QA Engineer at PT Astra International Tbk (assigned through PT Global Lancesoft
+Indonesia). I validate a 1B+ row migration from Microsoft Fabric and Cloudera to Google BigQuery
+with SQL and Python/Pandas, and test an embedded Power BI application on web, Android, iOS and
+iPadOS. I also execute and maintain existing Playwright and WebdriverIO/Appium regression suites.
+Before this: QA internships in banking and capital markets.
 
-**Currently open to Software QA Engineer, QA Automation, and Data Quality / ETL Validation roles.**
-
----
-
-## Key Highlights
-
-| Metric | Details |
-|--------|---------|
-| **Experience** | 5 professional roles and internships across QA, data quality, and BI |
-| **Test Coverage** | 440+ test cases designed across functional, API, integration, BI, SIT, UAT, and regression (200+ Astra, 80+ IDX, 100+ Indivara, 60+ BTN) |
-| **Data Validation** | 100+ enterprise tables (1B+ rows) validated during the Fabric / Cloudera → BigQuery migration (99.8% row-level hash match) |
-| **Education** | Bachelor of Information Systems, Telkom University (GPA 3.68 / 4.00) |
-| **Certifications** | ISTQB CTFL v4.0, BNSP Associate Data Scientist, HackerRank Python / SQL / Java (Basic) |
+**Open to Software QA, QA automation and data-quality roles.**
 
 ---
 
-## Core Competencies
+## Highlights
 
-### Testing & QA
-Functional, Regression, API, Integration, Mobile, Web, and Embedded-BI Testing, ETL / Data Validation, SIT, UAT, Test Case Design, Defect Management, Root Cause Analysis
-
-### Automation & Tools
-Playwright and WebdriverIO/Appium (executing and maintaining inherited suites), Selenium, Postman, Tricentis Tosca, Katalon Studio, JMeter, TestRail, Jira, Git, Gherkin (BDD)
-
-### Programming & Database
-SQL, Python, Pandas, JavaScript, TypeScript, Java (basic)
-
-### Data & BI Platforms
-Google BigQuery (GCP), Microsoft Fabric (Azure), Cloudera / Impala, Power BI Embedded, Pentaho, Partition-based & Multi-threaded Validation
-
-### Methodologies & Collaboration
-Agile Scrum, SDLC, STLC, CI/CD fundamentals, Requirements / FSD Analysis, Cross-functional Collaboration, Test Planning
+| | |
+|---|---|
+| **Data validation** | 100+ enterprise tables (1B+ rows) validated in a Fabric / Cloudera → BigQuery migration; 99.8% row-level hash match |
+| **Application testing** | 200+ test cases on 15+ embedded Power BI dashboards, functional testing through SIT, UAT and release validation |
+| **Automation** | Inherited Playwright and WebdriverIO/Appium suites (execute, maintain, investigate); 25+ Tricentis Tosca modules built at BTN; a Java/Selenium framework built from scratch as a personal project |
+| **Education** | Bachelor of Information Systems, Telkom University (GPA 3.68/4.00) |
 
 ---
 
-## Professional Experience
+## Experience
 
-### Software QA Engineer
-**PT Astra International Tbk** (via PT Global Lancesoft Indonesia) — Jakarta, Indonesia  
-*April 2026 — Present*
+### Software QA Engineer — PT Astra International Tbk
+*Apr 2026 — Present · Assigned through PT Global Lancesoft Indonesia*
 
-QA for Auto Intelligence, an enterprise BI application embedding Power BI reports, across Web, Android, iOS, and iPadOS, plus data validation for its Microsoft Fabric and Cloudera (Impala/Hive) → Google BigQuery migration.
+**Data migration validation** — Microsoft Fabric / Cloudera (Impala, Hive) → Google BigQuery
+- Validated 100+ enterprise tables (1B+ rows): row counts, schema and data-type mapping, NULLs, duplicates, business keys, and numeric, datetime and timezone precision
+- Reconciled source and target with SQL and Python/Pandas, including row-level hash comparison across partitioned data; 99.8% row-level match
 
-- Validated 100+ enterprise tables (1B+ rows) through SQL and Python/Pandas reconciliation, achieving 99.8% row-level hash match across partitioned datasets
-- Executed functional, integration, regression, smoke, SIT, UAT, and release validation; designed 200+ test cases covering authentication/authorization, hierarchical slicers, filter-state persistence, and responsive rendering on 15+ dashboards
-- Execute and maintain the inherited Playwright (Web) and WebdriverIO/Appium (Android) regression suites, investigating failures and surfacing reliability improvements such as condition-based waits and resilient locators
-- Investigated API and backend issues using Postman and network log analysis; documented 35+ defects in Jira with full reproduction evidence, driving confirmation and release validation across 3 release cycles
+**Application testing and automation** — web, Android, iOS, iPadOS
+- Tested Auto Intelligence, an enterprise BI app embedding Power BI reports, from functional testing through SIT, UAT and release validation; designed 200+ test cases on 15+ dashboards
+- Executed and maintained inherited Playwright (web) and WebdriverIO/Appium (Android) regression suites built on the Page Object Model; investigated failures and identified reliability improvements (condition-based waits, resilient locators)
+- Investigated authorization failures and report-loading defects with Postman and network logs; documented reproducible defects in Jira and validated fixes across 3 release cycles
 
-### Quality Assurance Intern
-**PT IDX Solusi Teknologi Informasi** — Jakarta Selatan, Indonesia  
-*December 2025 — April 2026*
+### Quality Assurance Intern — PT IDX Solusi Teknologi Informasi
+*Dec 2025 — Apr 2026*
+- 80+ positive/negative functional and regression test cases for IDX Terminal and HRIS; PRD reviews with developers, BAs and UI/UX designers
 
-Functional and regression testing for IDX Terminal and HRIS.
+### Quality Assurance Intern — PT Indivara Group
+*Nov 2025 — Dec 2025*
+- 100+ functional and regression test cases for an Android app, a CMS and Salesforce; 7 critical pre-production defects found, 20+ tracked in Jira against Gherkin criteria over 4 sprints
 
-- Authored and executed 80+ functional and regression test cases, deriving positive and negative scenarios from functional requirements
-- Groomed PRDs with Developers, Business Analysts, and UI/UX Designers to surface ambiguous requirements before development
-
-### Quality Assurance Intern
-**PT Indivara Group** — Tangerang, Indonesia  
-*November 2025 — December 2025*
-
-Functional and regression testing across an Android app, a CMS, and a Salesforce platform.
-
-- Designed and executed 100+ functional and regression test cases, identifying 7 critical defects before production
-- Tracked 20+ defects in Jira using Gherkin-based acceptance criteria across 4 Agile sprints
-
-### Teaching Assistant — Data Warehouse & BI
-**Daspro Laboratory, Telkom University** — Bandung, Indonesia  
-*May 2025 — June 2025*
-
-Designed and delivered lab modules for the Data Warehouse and Business Intelligence course.
-
-- Guided students in building ETL and BI workflows with Pentaho and SQL
-- Ran practical sessions on data validation and BI analysis; 90%+ of students achieved strong grades
-
-### Business Support QA & Testing Intern
-**PT Bank Tabungan Negara (Persero) Tbk** — Jakarta, Indonesia  
-*June 2024 — August 2024*
-
-API and regression testing for a Corporate Internet Banking platform.
-
-- Created and executed 60+ API and regression test cases across 10+ transaction types
-- Built and maintained 25+ Tricentis Tosca automation modules supporting recurring regression cycles
+### Business Support QA & Testing Intern — PT Bank Tabungan Negara (Persero) Tbk
+*Jun 2024 — Aug 2024*
+- Built and maintained 25+ Tricentis Tosca automation modules for recurring regression on a corporate internet banking platform; 60+ API and regression test cases across 10+ transaction types
 
 ---
 
-## Featured Projects
+## Projects
 
-The site shows these as a carousel; the order below is the slide order.
+**Java/Selenium Automation Framework** (personal project) — Java, Selenium, TestNG, Maven. Built
+from scratch: thread-safe parallel execution, constructor injection, polymorphic browser interface
+for cross-browser runs. *Code not public yet.*
 
-### Sales & Inventory Forecasting System
-**Final-Year Project · 2025** — [github.com/InsanTaufik/Aplikasi-Prediksi-Shopee](https://github.com/InsanTaufik/Aplikasi-Prediksi-Shopee)
+**Invoice Management API Automation** — Katalon Studio, Groovy, REST API. Positive and negative
+tests for authentication, invoice listing, invoice detail and unbilled-summary endpoints (HTTP
+status, JSON payloads); reusable request and retry handling as Custom Keywords. *Code not public.*
 
-A Streamlit web app that forecasts 12 months of product sales with an XGBoost pipeline (iterative prediction, seasonal analysis, lag features). Automated validation scripts protect the integrity of every model input.
-
-**Stack:** Python, XGBoost, Streamlit, Pandas, SQL, Scikit-learn — **R² 0.901 | MAPE <10%**
-
-### Java/Selenium Automation Framework
-**Test Automation · Personal project** — no public repository
-
-A test automation framework built from scratch to learn professional framework architecture: thread-safe parallel execution, constructor injection, and a polymorphic browser interface for cross-browser support.
-
-**Stack:** Java, Maven, TestNG, Selenium
-
-### Invoice Management API Automation
-**API Test Automation · 2025** — no public repository
-
-Katalon Studio suite for the authentication, invoice listing, invoice detail, and unbilled summary endpoints, with positive and negative scenarios for HTTP status codes and JSON payloads. Reusable request and retry handling through Custom Keywords; workflow documentation delivered.
-
-**Stack:** Katalon Studio, Groovy, REST API
-
-### End-to-End Test Automation Framework
-**Test Automation · 2026** — [github.com/InsanTaufik/ESBTechnicalTest_Muhamad-Insan-Taufik](https://github.com/InsanTaufik/ESBTechnicalTest_Muhamad-Insan-Taufik)
-
-Playwright + TypeScript automation for SauceDemo on a maintainable Page Object Model, with reusable fixtures, utilities, and automated assertions.
-
-### Digital Credit Submission & Approval Workflow
-**Full-Stack + QA · 2026** — [github.com/InsanTaufik/2a_Credit_Application_PDP_BCA_Finance](https://github.com/InsanTaufik/2a_Credit_Application_PDP_BCA_Finance)
-
-Production-like credit-application prototype with a strict server-side approval state machine, RBAC, and full audit trail. Scope driven by BRD / PRD / FSD. Stack: Next.js, NestJS, PostgreSQL, Prisma, Playwright.
-
-### CI/CD Pipeline Practice — Flask API
-**DevOps for QA · 2026** — [github.com/InsanTaufik/CI-CD-Practice](https://github.com/InsanTaufik/CI-CD-Practice)
-
-Minimal Flask REST API wired to a full CI/CD pipeline: pytest suites, Docker staging→prod promotion, GitHub Actions, feature flags, and Prometheus + Grafana observability.
-
-### Personal Profile Website
-**Coding Camp · 2025** — [github.com/InsanTaufik/CodingCamp-7Nov2025-muhamadinsantaufik](https://github.com/InsanTaufik/CodingCamp-7Nov2025-muhamadinsantaufik)
-
-Responsive multi-page personal profile site (vanilla HTML, CSS, JavaScript) built during a 5-day RevoU coding camp.
+More on GitHub:
+- [End-to-end Playwright suite](https://github.com/InsanTaufik/ESBTechnicalTest_Muhamad-Insan-Taufik) — Playwright + TypeScript, Page Object Model
+- [Credit submission & approval workflow](https://github.com/InsanTaufik/2a_Credit_Application_PDP_BCA_Finance) — Next.js, NestJS, server-side state machine, RBAC, audit trail
+- [CI/CD pipeline for a Flask API](https://github.com/InsanTaufik/CI-CD-Practice) — pytest gate, Docker, GitHub Actions, Prometheus + Grafana
+- [Sales forecasting app](https://github.com/InsanTaufik/Aplikasi-Prediksi-Shopee) — final-year project, XGBoost + Streamlit
 
 ---
 
-## Certifications
+## Skills
 
-- **ISTQB Certified Tester Foundation Level (CTFL) v4.0** — Course, 2025
-- **BNSP Associate Data Scientist** — Competent Certification, 2024
-- **HackerRank Python (Basic)** — 2026
-- **HackerRank SQL (Basic)** — 2026
-- **HackerRank Java (Basic)** — 2026
+| | At work | Projects only |
+|---|---|---|
+| **Testing** | Functional, integration, regression, end-to-end, smoke, SIT, UAT, release validation, test case design, defect management (Jira/Xray) | |
+| **Automation** | Playwright (JavaScript), WebdriverIO/Appium, Tricentis Tosca, Page Object Model, Allure, Git | Selenium (Java, TestNG), Katalon Studio (Groovy), Playwright (TypeScript), pytest, GitHub Actions |
+| **API** | REST APIs, Postman, HTTP status and JSON validation, authentication/authorization, network logs | Katalon API automation |
+| **Data & BI** | SQL, Python (Pandas), data reconciliation, ETL/migration testing, Google BigQuery, Microsoft Fabric, Cloudera (Impala, Hive), Power BI Embedded | |
+
+---
+
+## Education & credentials
+
+- **Bachelor of Information Systems**, Telkom University — GPA 3.68/4.00 (Sep 2021 — Aug 2025)
+- **Teaching Assistant, Data Warehouse & BI**, Daspro Laboratory, Telkom University (May — Jun 2025)
+- **Associate Data Scientist** — BNSP competency certification (2024)
+- **Certified Tester Foundation Level (CTFL) v4.0** — course, Udemy (2025)
 
 **Languages:** Indonesian (native), English (professional working proficiency)
 
 ---
 
-## About
-
-I hold a Bachelor of Information Systems from Telkom University (GPA 3.68/4.00). Since 2024 I've
-tested in banking, capital markets, automotive, and FMCG. Day to day
-that means:
-
-- Breaking a system into testable components and working out where it is most likely to break
-- Writing test documentation that someone else can pick up and run
-- Reconciling data with SQL and Python/Pandas at row and partition level
-- Tracing a defect back far enough that the ticket names a cause, not a symptom
-- Working with developers, product owners, BAs, data engineers, and DevOps
-
----
-
 ## Contact
-
-I'm open to discussions about Software QA Engineer, QA Automation, and Data Quality / ETL Validation opportunities.
 
 - **Email:** insantaufik82@gmail.com
 - **LinkedIn:** https://www.linkedin.com/in/muhamad-insan-taufik
 - **GitHub:** https://github.com/InsanTaufik
-- **Location:** West Jakarta, Indonesia
 
 ---
 
-## View Full Portfolio
-
-Visit the complete interactive portfolio website:  
-**https://insantaufik.github.io/Website_Portofolio/**
-
-This website includes detailed project breakdowns, technical stack overviews, and a comprehensive skills matrix.
-
----
-
-## Repository Structure
+## Repository structure
 
 ```
 portfolio/
@@ -196,91 +114,63 @@ portfolio/
 │   ├── data.js         # All content (portfolioData) — the only file to edit for copy
 │   └── main.js         # Renders data.js into the shell, then wires interactions
 ├── assets/
-│   ├── cv/             # CV PDF (linked from the hero, nav and mobile menu)
+│   ├── cv/             # CV PDF (hero, nav, mobile menu, contact)
 │   ├── icons/          # Favicon
-│   └── og/             # Social preview card (1200x630)
+│   └── og/             # Social preview card (1200×630)
 └── README.md
 ```
 
-### How the styling is organised
+GitHub Pages serves the repository root at `/Website_Portofolio/`. The canonical and Open Graph
+URLs in `index.html` point there; keep them in sync if the repository is renamed.
 
-Colour is expressed through semantic tokens — `--fg`, `--fg-muted`, `--surface`,
-`--surface-2`, `--line`, `--accent`. Light values are declared on `:root`; the dark
-sections (`#projects`, `#contact`, `.site-footer`) redeclare the same token names.
-Components only ever read tokens, so a card, metric band or disclosure renders correctly
-on either surface with no per-section overrides.
+### Styling
+
+The palette comes from the CV: navy `#1e395e` for identity, near-black text, slate rules
+(`#99a4b0`), white and cool off-white paper. Colour is expressed through semantic tokens —
+`--color-primary`, `--color-primary-hover`, `--color-text`, `--color-text-muted`,
+`--color-border`, `--color-surface`, `--color-surface-alt`, `--color-background` and a few
+more. Light values are declared on `:root`; the navy sections (`#projects`, `#contact`,
+`.site-footer`) redeclare the same names, so components render correctly on either surface.
+
+Type: DM Serif Display (headings), DM Sans (body), JetBrains Mono (dates, tool lists, labels).
 
 ---
 
-## Updating Content
+## Updating content
 
-All content lives in `js/data.js` (`portfolioData`). Edit that file only — no HTML or CSS
-changes are needed for content updates. Optional fields degrade gracefully: omit one and the
-renderer skips that part of the card.
+All content lives in `js/data.js` (`portfolioData`). Edit that file only. Optional fields
+degrade gracefully: omit one and the renderer skips that part.
 
 | Field | Shape | Effect |
 |-------|-------|--------|
-| `hero.layers[]` | `{ id, label, scope, detail }` | a row in the hero layer diagram |
-| `hero.evidence[]` | `{ value, label, count? }` | the figures strip below the hero; `count` animates it |
-| `about.facts[].count` | number | animates the fact counter on scroll-in |
-| `experience.items[].context` | string | the one-paragraph summary shown before the disclosure |
-| `experience.items[].proof` | string | one sourced proof point shown before the metrics and details |
-| `experience.items[].metrics` | `[{ value, label }]` | the metric band at the top of the role |
-| `experience.items[].approach` / `.findings` | `[string]` | the two blocks inside "Approach & findings" |
-| `experience.items[].current` | boolean | adds the pulsing status dot to the period |
-| `experience.items[].via` | string | staffing / contracting employer, shown under the company name |
-| `projects.carousel` | `{ label, autoplay, intervalMs }` | carousel accessible name; autoplay is currently off |
-| `projects.items[]` | one entry per slide, in order | keep 4 or more so the loop has an offscreen slot to wrap through |
-| `projects.items[].featured` | boolean | gives the slide the darker card surface |
-| `projects.items[].flow` | `["Source", "Step", "Target"]` | arrow pipeline diagram, shown at the top of the case study |
-| `projects.items[].problem` / `.approach` / `.result` | string / `[string]` / `[string]` | the case study; on desktop the card widens and it opens in a second column |
-| `projects.items[].metrics` | `[{ value, label }]` | one-line stat strip under the summary |
-| `projects.items[].proof` | string | one sourced proof point on cards with a case study |
-| `projects.items[].image` | `{ src, alt, width, height }` | optional slide image, lazy-loaded; `alt` is required unless decorative |
-| `projects.items[].repo` / `.links` | URL / `[{ label, href }]` | outbound links pinned to the foot of the slide |
-| `projects.items[].meta` | `{ language, updated? }` | baked GitHub metadata (see below) |
-| `skills.groups[]` | `{ id, title, evidence, items[] }` | `evidence` is the line under the heading |
-| `about.credentials[].credentialUrl` | URL | makes the certification row a link |
-| `contact.email` | address | used by the "Copy email" button |
+| `hero.evidence[]` | `{ value, label }` | the figures strip under the hero |
+| `hero.layers[]` | `{ id, label, scope, detail }` | a row in the "Where I test" diagram |
+| `experience.items[].points` | `[string]` | bullets shown directly under the role |
+| `experience.items[].workstreams` | `[{ title, scope, points[], tools[] }]` | always-visible strands of a role |
+| `experience.items[].caseStudy` | `{ label, flow[], challenge, approach[], outcome[] }` | a disclosure under the role |
+| `experience.items[].current` / `.via` | boolean / string | status dot; staffing employer under the company |
+| `projects.featured[]` | `{ title, kind, year?, stack[], summary, why?, built[], proves, flow?, repo?, note? }` | a project card; `note` shows when there is no `repo` |
+| `projects.more[]` | `{ title, summary, language, repo }` | a row in "More on GitHub" |
+| `skills.groups[]` | `{ title, where, work[], projects[]? }` | a row in the skills table |
+| `about.credentials[].credentialUrl` | URL | makes the credential row a link |
+| `cv.href` | path | the CV file every "Download CV" link uses |
 
-Icons are referenced by name (`icon: "download"`); the available names are the keys of `ICON`
-in `js/main.js`. A section's eyebrow label is hidden when it would repeat the section title.
-
-### Refreshing GitHub project metadata
-
-After adding `repo` URLs, bake in language and last-updated:
-
-```bash
-gh repo view <owner>/<repo> --json name,description,primaryLanguage,pushedAt
-```
-
-Then set `meta` on that project, e.g. `meta: { language: "Python", updated: "Feb 2026" }`.
+Content rules (also at the top of `data.js`): the CV is the source of truth for figures; the
+Astra automation suites are inherited, so never "built" or "designed"; CTFL is a course, so never
+"ISTQB-certified".
 
 ---
 
 ## Accessibility & motion
 
-- Semantic landmarks (`header` / `nav` / `main` / `footer`), one `h1`, no heading-level skips
-- Every text/background pair on the page meets WCAG AA contrast
-- Experience disclosures use native `<details>`. Project case studies use a disclosure
-  button (`aria-expanded` / `aria-controls`) over a panel with `hidden="until-found"`, because
-  the panel moves into its own column when the card widens. Both are keyboard-operable and
-  findable via browser find-in-page; a find match opens the case study
-- Focus rings are accent-coloured and re-map per surface (deep blue on light, pale blue on dark)
-- The mobile menu traps focus while open and returns focus to its trigger on close
-- `prefers-reduced-motion: reduce` stops decorative reveals, the scroll-progress sweep and
-  the availability pulse. Section scrolling, disclosure changes and carousel navigation
-  remain animated by design
-- The projects carousel follows the WAI-ARIA carousel pattern: a `region` with
-  `aria-roledescription="carousel"`, slides as labelled `group`s ("3 of 7: Title"), and a
-  polite live region that announces the slide after a manual change (never during autoplay).
-  Slides that aren't showing are `inert`, so their links can't be tabbed to. Arrow keys work
-  anywhere inside it; prev/next buttons, dots, drag and swipe all work too
-- Carousel autoplay is off. Visitors move slides with arrows, dots, a preview card, keyboard
-  arrows or swipe; cards slide and cross-fade between their preview and full content
+- Semantic landmarks, one `h1`, no heading-level skips; axe-core reports no WCAG 2.2 AA violations
+- All core evidence is visible without interaction; the one disclosure (the migration case study)
+  is a native `<details>`
+- Focus rings re-map per surface; the mobile menu traps focus and returns it to its trigger
+- Touch targets are at least 44px
+- `prefers-reduced-motion: reduce` stops entrance reveals, the scroll-progress sweep, the
+  availability pulse and smooth anchor scrolling
 
 ---
 
-**Last Updated:** September 2026  
-**Built with:** HTML, CSS, JavaScript (no framework, no build step)  
-**Hosted on:** GitHub Pages
+**Built with:** HTML, CSS, JavaScript (no framework, no build step) · **Hosted on:** GitHub Pages
