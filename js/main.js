@@ -390,7 +390,7 @@
             <span class="cred-issuer">${esc(c.issuer)}</span>
             <span class="cred-name">${esc(c.name)}</span>
           </span>
-          <span class="cred-year">${esc(c.year)}</span>`;
+          ${c.year ? `<span class="cred-year">${esc(c.year)}</span>` : ""}`;
         if (c.credentialUrl) {
           return `<li><a class="cred-row" href="${esc(
             c.credentialUrl

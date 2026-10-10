@@ -32,8 +32,7 @@
  * - Automation at Astra: the Playwright and WebdriverIO/Appium suites were
  *   inherited. Use execute / maintain / investigate — never build / design.
  *   Tosca (BTN) and the personal projects are the user's own work.
- * - CTFL v4.0 is a Udemy course, not a passed ISTQB exam. Never write
- *   "ISTQB-certified".
+ * - List CTFL v4.0 as an ISTQB certification, as stated in the current CV.
  */
 const CV_URL = "assets/cv/Muhamad_Insan_Taufik_CV_2026.pdf";
 const CREDENTIALS_URL =
@@ -71,7 +70,7 @@ const portfolioData = {
     role: "Software QA Engineer",
     tagline: "Manual & automation testing · API · Data validation",
     summary:
-      "I test enterprise applications from the screen down to the data. At Astra International I validate a Microsoft Fabric and Cloudera migration into Google BigQuery with SQL and Python, and test the Power BI app built on it across web, Android, iOS and iPadOS.",
+      "I test enterprise applications from the screen down to the data. At Astra International I validate a Microsoft Fabric and Cloudera migration into Google BigQuery, reconcile SAP customer extracts against Azure SQL, and investigate customer-data discrepancies with SQL and Python. I also test an embedded Power BI app across web and mobile.",
     ctas: [
       { href: "#experience", label: "View experience", variant: "primary", icon: "arrow-down" },
       { href: CV_URL, label: "Download CV", variant: "outline", icon: "download", download: true },
@@ -94,7 +93,7 @@ const portfolioData = {
       {
         id: "api",
         label: "API",
-        scope: "REST · Postman · network logs",
+        scope: "REST · Postman · Network logs",
         detail: "Status codes, JSON payloads, authentication and authorization",
       },
       {
@@ -131,16 +130,18 @@ const portfolioData = {
         role: "Software QA Engineer",
         current: true,
         context:
-          "Auto Intelligence is an enterprise BI app built on embedded Power BI reports. I test the app, and I validate the data behind it as it moves from Microsoft Fabric and Cloudera (Impala, Hive) to Google BigQuery.",
+          "Auto Intelligence is an enterprise BI app built on embedded Power BI reports. I test the app and validate data across a Microsoft Fabric and Cloudera (Impala, Hive) to Google BigQuery migration, SAP customer extracts to A1 (Azure SQL), and customer billing and tier data flows.",
         workstreams: [
           {
-            title: "Data migration validation",
-            scope: "Fabric / Cloudera → BigQuery",
+            title: "Data validation & reconciliation",
+            scope: "Fabric / Cloudera → BigQuery · SAP → A1 (Azure SQL)",
             points: [
               "Validated 100+ enterprise tables (1B+ rows): row counts, schema and data-type mapping, NULLs, duplicates, business keys, and numeric, datetime and timezone precision.",
               "Reconciled source and target with SQL and Python/Pandas, including row-level hash comparison across partitioned data. Result: a 99.8% row-level match.",
+              "Reconciled SAP customer Excel extracts against A1 (Azure SQL) by CustomerNo, using flexible column mapping and batched queries to check missing and duplicate customers, null or blank values, and field-level differences. Investigated about 1,000 remaining discrepancies reported during UAT.",
+              "Investigated billed customers still shown as White tier across customer, billing and service data flows, including Azure SQL CustomerCDP to Elasticsearch. Recommended Data Transport logging and supported Kafka checks.",
             ],
-            tools: ["SQL", "Python/Pandas", "BigQuery", "Microsoft Fabric", "Cloudera"],
+            tools: ["SQL", "Python/Pandas", "BigQuery", "Azure SQL", "Microsoft Fabric", "Cloudera", "Elasticsearch", "Kafka"],
           },
           {
             title: "Application testing",
@@ -186,10 +187,10 @@ const portfolioData = {
         company: "PT IDX Solusi Teknologi Informasi",
         location: "Jakarta Selatan, ID",
         role: "Quality Assurance Intern",
-        context: "Capital markets · IDX Terminal and HRIS",
+        context: "Capital markets · IDX Terminal, KPEI, HRIS and SSL/SFTP",
         points: [
-          "Authored and executed 80+ positive and negative functional and regression test cases for IDX Terminal and HRIS.",
-          "Reviewed PRDs with developers, business analysts and UI/UX designers to catch ambiguities before implementation.",
+          "Tested IDX Terminal, KPEI PME/SBL, KPEI Administration, HRIS and SSL/SFTP modules; wrote and ran 80+ functional and regression cases from PRDs, FSDs and backlogs.",
+          "Found 6 functional defects in IDX Terminal after backend changes and supported retests and UAT.",
         ],
       },
       {
@@ -348,9 +349,12 @@ const portfolioData = {
           "Data reconciliation",
           "ETL/migration testing",
           "Google BigQuery",
+          "Azure SQL",
           "Microsoft Fabric",
           "Cloudera (Impala, Hive)",
           "Power BI Embedded",
+          "Elasticsearch (basic exposure)",
+          "Kafka (basic exposure)",
         ],
       },
       {
@@ -389,9 +393,8 @@ const portfolioData = {
         credentialUrl: CREDENTIALS_URL,
       },
       {
-        issuer: "Udemy",
-        name: "Certified Tester Foundation Level (CTFL) v4.0 — course",
-        year: "2025",
+        issuer: "ISTQB",
+        name: "Certified Tester Foundation Level (CTFL) v4.0",
         credentialUrl: CREDENTIALS_URL,
       },
     ],

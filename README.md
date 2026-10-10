@@ -7,10 +7,10 @@
 ## Overview
 
 Software QA Engineer at PT Astra International Tbk (assigned through PT Global Lancesoft
-Indonesia). I validate a 1B+ row migration from Microsoft Fabric and Cloudera to Google BigQuery
-with SQL and Python/Pandas, and test an embedded Power BI application on web, Android, iOS and
-iPadOS. I also execute and maintain existing Playwright and WebdriverIO/Appium regression suites.
-Before this: QA internships in banking and capital markets.
+Indonesia). I validate a 1B+ row migration from Microsoft Fabric and Cloudera to Google BigQuery,
+reconcile SAP customer extracts against A1 (Azure SQL), and investigate customer tier and billing
+data discrepancies. I also test an embedded Power BI application and maintain inherited Playwright
+and WebdriverIO/Appium suites. Before this: QA internships in banking and capital markets.
 
 **Open to Software QA, QA automation and data-quality roles.**
 
@@ -32,9 +32,11 @@ Before this: QA internships in banking and capital markets.
 ### Software QA Engineer — PT Astra International Tbk
 *Apr 2026 — Present · Assigned through PT Global Lancesoft Indonesia*
 
-**Data migration validation** — Microsoft Fabric / Cloudera (Impala, Hive) → Google BigQuery
+**Data validation and reconciliation** — Microsoft Fabric / Cloudera (Impala, Hive) → BigQuery; SAP → A1 (Azure SQL)
 - Validated 100+ enterprise tables (1B+ rows): row counts, schema and data-type mapping, NULLs, duplicates, business keys, and numeric, datetime and timezone precision
 - Reconciled source and target with SQL and Python/Pandas, including row-level hash comparison across partitioned data; 99.8% row-level match
+- Reconciled SAP customer Excel extracts against A1 (Azure SQL) by CustomerNo, checking missing and duplicate customers, null or blank values and field-level differences; investigated about 1,000 remaining discrepancies reported during UAT
+- Investigated billed customers shown as White tier across customer, billing and service data flows, including Azure SQL CustomerCDP to Elasticsearch; recommended Data Transport logging and supported Kafka checks
 
 **Application testing and automation** — web, Android, iOS, iPadOS
 - Tested Auto Intelligence, an enterprise BI app embedding Power BI reports, from functional testing through SIT, UAT and release validation; designed 200+ test cases on 15+ dashboards
@@ -43,7 +45,7 @@ Before this: QA internships in banking and capital markets.
 
 ### Quality Assurance Intern — PT IDX Solusi Teknologi Informasi
 *Dec 2025 — Apr 2026*
-- 80+ positive/negative functional and regression test cases for IDX Terminal and HRIS; PRD reviews with developers, BAs and UI/UX designers
+- Tested IDX Terminal, KPEI PME/SBL, KPEI Administration, HRIS and SSL/SFTP modules; wrote and ran 80+ functional and regression cases from PRDs, FSDs and backlogs; found 6 functional defects in IDX Terminal after backend changes and supported retests and UAT
 
 ### Quality Assurance Intern — PT Indivara Group
 *Nov 2025 — Dec 2025*
@@ -80,7 +82,7 @@ More on GitHub:
 | **Testing** | Functional, integration, regression, end-to-end, smoke, SIT, UAT, release validation, test case design, defect management (Jira/Xray) | |
 | **Automation** | Playwright (JavaScript), WebdriverIO/Appium, Tricentis Tosca, Page Object Model, Allure, Git | Selenium (Java, TestNG), Katalon Studio (Groovy), Playwright (TypeScript), pytest, GitHub Actions |
 | **API** | REST APIs, Postman, HTTP status and JSON validation, authentication/authorization, network logs | Katalon API automation |
-| **Data & BI** | SQL, Python (Pandas), data reconciliation, ETL/migration testing, Google BigQuery, Microsoft Fabric, Cloudera (Impala, Hive), Power BI Embedded | |
+| **Data & BI** | SQL, Python (Pandas), data reconciliation, migration testing, Google BigQuery, Azure SQL, Microsoft Fabric, Cloudera (Impala, Hive), Power BI Embedded; basic exposure to Elasticsearch and Kafka | |
 
 ---
 
@@ -89,7 +91,7 @@ More on GitHub:
 - **Bachelor of Information Systems**, Telkom University — GPA 3.68/4.00 (Sep 2021 — Aug 2025)
 - **Teaching Assistant, Data Warehouse & BI**, Daspro Laboratory, Telkom University (May — Jun 2025)
 - **Associate Data Scientist** — BNSP competency certification (2024)
-- **Certified Tester Foundation Level (CTFL) v4.0** — course, Udemy (2025)
+- **ISTQB Certified Tester Foundation Level (CTFL) v4.0**
 
 **Languages:** Indonesian (native), English (professional working proficiency)
 
@@ -156,8 +158,8 @@ degrade gracefully: omit one and the renderer skips that part.
 | `cv.href` | path | the CV file every "Download CV" link uses |
 
 Content rules (also at the top of `data.js`): the CV is the source of truth for figures; the
-Astra automation suites are inherited, so never "built" or "designed"; CTFL is a course, so never
-"ISTQB-certified".
+Astra automation suites are inherited, so never "built" or "designed"; CTFL v4.0 is listed as an
+ISTQB certification as stated in the current CV.
 
 ---
 
