@@ -68,9 +68,9 @@ const portfolioData = {
     location: "West Jakarta, ID",
     name: "Muhamad Insan Taufik",
     role: "Software QA Engineer",
-    tagline: "Manual & automation testing · API · Data validation",
+    tagline: "Functional · API · Mobile & web testing · Data quality & BI validation",
     summary:
-      "I test enterprise applications from the screen down to the data. At Astra International I validate a Microsoft Fabric and Cloudera migration into Google BigQuery, reconcile SAP customer extracts against Azure SQL, and investigate customer-data discrepancies with SQL and Python. I also test an embedded Power BI app across web and mobile.",
+      "Software QA Engineer combining web, mobile and API testing with data quality validation in SQL, Python/Pandas and SAP GUI Scripting. I validate a 1B+ row Fabric/Cloudera-to-BigQuery migration and am building SAP-to-A1 customer data validation automation at PT Astra International Tbk.",
     ctas: [
       { href: "#experience", label: "View experience", variant: "primary", icon: "arrow-down" },
       { href: CV_URL, label: "Download CV", variant: "outline", icon: "download", download: true },
@@ -82,37 +82,31 @@ const portfolioData = {
       { value: "200+", label: "Test cases on 15+ embedded Power BI dashboards" },
       { value: "25+", label: "Tricentis Tosca modules built for banking regression" },
     ],
-    layersCaption: "Where I test",
+    layersCaption: "QA coverage",
     layers: [
       {
-        id: "ui",
-        label: "Interface",
+        id: "product",
+        label: "Product QA",
         scope: "Web · Android · iOS · iPadOS",
-        detail: "Functional testing through SIT, UAT and release validation",
+        detail: "Functional, SIT, UAT, release and regression testing",
       },
       {
         id: "api",
         label: "API",
-        scope: "REST · Postman · Network logs",
-        detail: "Status codes, JSON payloads, authentication and authorization",
+        scope: "REST · Postman · App logs",
+        detail: "Authentication, JSON payloads, defects and fix validation",
       },
       {
         id: "data",
-        label: "Data",
-        scope: "SQL · Pandas · BigQuery · Fabric · Cloudera",
-        detail: "Row counts, schema mapping, keys, precision, row-level hashes",
+        label: "Data quality",
+        scope: "SQL · Python/Pandas · SAP GUI",
+        detail: "Cross-system reconciliation and migration validation",
       },
       {
-        id: "bi",
-        label: "BI",
-        scope: "Power BI Embedded",
-        detail: "Hierarchical slicers, filter-state persistence, report loading",
-      },
-      {
-        id: "auto",
+        id: "automation",
         label: "Automation",
         scope: "Playwright · WebdriverIO/Appium · Tosca",
-        detail: "Inherited regression suites at Astra; my own Tosca modules and framework projects",
+        detail: "Inherited suites, banking regression and reliability improvements",
       },
     ],
   },
@@ -127,60 +121,42 @@ const portfolioData = {
         company: "PT Astra International Tbk",
         via: "Assigned through PT Global Lancesoft Indonesia",
         location: "Jakarta, ID",
-        role: "Software QA Engineer",
+        role: "Product QA / Software QA Engineer",
         current: true,
         context:
-          "Auto Intelligence is an enterprise BI app built on embedded Power BI reports. I test the app and validate data across a Microsoft Fabric and Cloudera (Impala, Hive) to Google BigQuery migration, SAP customer extracts to A1 (Azure SQL), and customer billing and tier data flows.",
+          "Data quality and cross-system validation at Astra: SAP to A1 (Azure SQL), Fabric / Cloudera to BigQuery, and product QA for ODYSSEUS / Auto Intelligence, an enterprise BI app embedding Power BI reports.",
         workstreams: [
           {
-            title: "Data validation & reconciliation",
-            scope: "Fabric / Cloudera → BigQuery · SAP → A1 (Azure SQL)",
+            title: "SAP GUI & customer data validation",
+            scope: "Extract → Match → Validate",
             points: [
-              "Validated 100+ enterprise tables (1B+ rows): row counts, schema and data-type mapping, NULLs, duplicates, business keys, and numeric, datetime and timezone precision.",
-              "Reconciled source and target with SQL and Python/Pandas, including row-level hash comparison across partitioned data. Result: a 99.8% row-level match.",
-              "Reconciled SAP customer Excel extracts against A1 (Azure SQL) by CustomerNo, using flexible column mapping and batched queries to check missing and duplicate customers, null or blank values, and field-level differences. Investigated about 1,000 remaining discrepancies reported during UAT.",
-              "Investigated billed customers still shown as White tier across customer, billing and service data flows, including Azure SQL CustomerCDP to Elasticsearch. Recommended Data Transport logging and supported Kafka checks.",
+              "Extracted A1 data through Azure SQL and SAP data from KNA1, KNB1 and ZPYGSDDT00816 using VBScript/SAP GUI.",
+              "Matched unique CustomerNo values with batched Python/Pandas workflows and flexible SAP-to-A1 field mapping.",
+              "Validated duplicates, missing records, blanks and field mismatches; investigated about 1,000 UAT discrepancies.",
             ],
-            tools: ["SQL", "Python/Pandas", "BigQuery", "Azure SQL", "Microsoft Fabric", "Cloudera", "Elasticsearch", "Kafka"],
+            tools: ["SAP GUI Scripting", "VBScript", "Azure SQL", "Python/Pandas"],
           },
           {
-            title: "Application testing",
-            scope: "Web · Android · iOS · iPadOS",
+            title: "MAGNUM — data migration QA",
+            scope: "Extract → Compare → Reconcile",
             points: [
-              "Tested Auto Intelligence from functional testing through SIT, UAT and release validation.",
-              "Designed 200+ test cases on 15+ dashboards for authentication and authorization, hierarchical slicers, filter-state persistence and responsive rendering.",
+              "Compared Fabric/Cloudera source data with BigQuery across five business units, 100+ tables and 1B+ rows.",
+              "Validated schemas, counts, business keys, duplicates, NULLs, numeric precision and date-time values with SQL and multithreaded Python/Pandas.",
+              "Applied SHA-2 row-level hashes across partitions and recorded a 99.8% row match.",
             ],
-            tools: ["Power BI Embedded", "Jira"],
+            tools: ["SQL", "Python/Pandas", "BigQuery", "Microsoft Fabric", "Cloudera"],
           },
           {
-            title: "Automation & defect investigation",
-            scope: "Inherited suites · Postman",
+            title: "ODYSSEUS — Auto Intelligence",
+            scope: "Design → Execute → Investigate → Regression",
             points: [
-              "Execute and maintain the inherited Playwright (web) and WebdriverIO/Appium (Android) regression suites, built on the Page Object Model. I investigate their failures and identify reliability fixes such as condition-based waits and resilient locators.",
-              "Isolated authorization failures and report-loading defects with Postman and network logs, documented them reproducibly in Jira, and validated the fixes across 3 release cycles.",
+              "Tested web and mobile apps through functional, SIT, UAT, release and regression cycles; designed 200+ cases across 15+ dashboards.",
+              "Validated APIs, authentication, dashboard data, hierarchical filters and responsive behavior with Postman, logs and network inspection.",
+              "Maintained inherited Playwright and WebdriverIO/Appium suites, investigated failures, and supported Power BI source-to-dashboard validation.",
             ],
-            tools: ["Playwright", "WebdriverIO/Appium", "Postman", "Jira/Xray", "Allure"],
+            tools: ["Power BI Embedded", "Playwright", "WebdriverIO/Appium", "Postman", "Jira/Xray"],
           },
         ],
-        caseStudy: {
-          label: "How the migration was validated",
-          flow: [
-            "Row counts",
-            "Schema & data types",
-            "NULLs · duplicates · keys",
-            "Numeric · datetime · timezone precision",
-            "Row-level hash per partition",
-          ],
-          challenge:
-            "Moving tables between engines can change types, precision and timezone handling while row counts still match. A count check alone would miss most of that.",
-          approach: [
-            "Structure first: row counts, then schema and data-type mapping against the source.",
-            "Content next: NULLs, duplicates and business-key integrity.",
-            "Precision: numeric, datetime and timezone values, where differences between engines tend to surface.",
-            "Row level: hash comparison across partitioned data, so a mismatch can be traced to a partition rather than a whole table.",
-          ],
-          outcome: ["99.8% row-level match across 100+ tables and 1B+ rows."],
-        },
       },
       {
         period: "Dec 2025 — Apr 2026",
@@ -221,7 +197,7 @@ const portfolioData = {
   projects: {
     title: "Projects",
     intro:
-      "At work I maintain automation someone else designed. These personal projects are where I build it myself.",
+      "My professional work includes inherited automation suites; these projects show how I build deeper automation and API testing experience.",
     featured: [
       {
         title: "Java/Selenium Automation Framework",
@@ -251,7 +227,7 @@ const portfolioData = {
           "Workflow documentation delivered with the suite",
         ],
         proves: "API test design beyond the happy path, and reusable test infrastructure.",
-        note: "Code not public.",
+        note: "Code not public yet.",
       },
     ],
     moreTitle: "More on GitHub",
@@ -315,6 +291,7 @@ const portfolioData = {
         work: [
           "Playwright (JavaScript)",
           "WebdriverIO/Appium",
+          "SAP GUI Scripting (VBScript)",
           "Tricentis Tosca",
           "Page Object Model",
           "Allure",
@@ -336,7 +313,7 @@ const portfolioData = {
           "Postman",
           "HTTP status and JSON validation",
           "Authentication/authorization",
-          "Network logs",
+          "Network inspection and application logs",
         ],
         projects: ["Katalon API automation"],
       },
@@ -346,13 +323,16 @@ const portfolioData = {
         work: [
           "SQL",
           "Python (Pandas)",
-          "Data reconciliation",
-          "ETL/migration testing",
+          "Data quality validation",
+          "Cross-system reconciliation",
+          "Migration testing",
           "Google BigQuery",
           "Azure SQL",
           "Microsoft Fabric",
           "Cloudera (Impala, Hive)",
           "Power BI Embedded",
+          "SAP GUI Scripting",
+          "SHA-2 row-level hashing",
           "Elasticsearch (basic exposure)",
           "Kafka (basic exposure)",
         ],
@@ -368,9 +348,9 @@ const portfolioData = {
   about: {
     title: "How I work",
     paragraphs: [
-      "I start from what could be wrong rather than the happy path. On a dashboard that means roles, filters and devices. In a migration it means types, precision and timezones, not only whether the row counts match.",
-      "A defect I can't reproduce isn't finished. I work back through the screen, the API response, the query and the partition until the cause is specific enough for a developer to act on, and that evidence goes into the ticket.",
-      "I see manual and automated testing as one job. Functional and exploratory testing find the problems; automation keeps them found. At Astra I run and maintain suites I inherited, and my personal projects are where I practise building them.",
+      "I start from what could be wrong rather than the happy path. On a dashboard that means roles, filters, device behavior and API responses. In a data migration it means types, precision, null handling and record-level validation, not only whether the row counts match.",
+      "A defect I can't reproduce isn't finished. I work back through the screen, the API call, the query and the data flow until the cause is specific enough for a developer to act on, and that evidence goes into the ticket.",
+      "I combine manual and automated testing as one quality practice. At Astra I validate cross-system data and embedded BI reports, while also maintaining inherited Playwright and WebdriverIO/Appium suites. My personal work is focused on building stronger automation and deeper QA depth in the areas I work on every day.",
     ],
     backgroundTitle: "Education & credentials",
     education: {
@@ -378,12 +358,6 @@ const portfolioData = {
       school: "Telkom University",
       period: "Sep 2021 — Aug 2025",
       detail: "GPA 3.68 / 4.00",
-    },
-    teaching: {
-      role: "Teaching Assistant, Data Warehouse & BI",
-      place: "Daspro Laboratory, Telkom University",
-      period: "May 2025 — Jun 2025",
-      detail: "Lab modules and practical sessions on ETL and BI workflows in Pentaho and SQL.",
     },
     credentials: [
       {
@@ -406,12 +380,18 @@ const portfolioData = {
     email: "insantaufik82@gmail.com",
     headline: "Looking for my next QA role.",
     sub:
-      "Software QA, QA automation or data-quality roles, on web, mobile or data platforms. Email is the fastest way to reach me.",
+      "Software QA, QA automation and data-quality roles across web, mobile and data platforms. Email is the fastest way to reach me.",
     links: [
       {
         href: "mailto:insantaufik82@gmail.com",
         label: "insantaufik82@gmail.com",
         icon: "mail",
+        external: false,
+      },
+      {
+        href: "tel:+6281380294349",
+        label: "081380294349",
+        icon: "phone",
         external: false,
       },
       {

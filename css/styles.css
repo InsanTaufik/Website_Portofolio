@@ -75,8 +75,8 @@
   --s-6: 2rem;
   --s-7: 3rem;
   --s-8: 4rem;
-  --section-y: clamp(4rem, 8vw, 7rem);
-  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --section-y: clamp(2.25rem, 4vw, 3.5rem);
+  --gutter: clamp(1rem, 3vw, 2rem);
   --measure: 66ch;
   --maxw: 1180px;
   --header-h: 64px;
@@ -227,6 +227,14 @@ main > section {
   color: var(--color-text);
 }
 
+#experience,
+#projects,
+#skills,
+#about,
+#contact {
+  padding-block-start: calc(var(--section-y) * 0.7);
+}
+
 /* The section roots are empty until main.js fills them at the end of <body>.
    Collapsing the shell means there is no laid-out box to shift away from.
    main.js drops the class in the same synchronous pass that renders. */
@@ -249,9 +257,9 @@ html.js main.is-booting > section {
 /* A heading over a full-width rule, the way the CV sets its section heads. */
 .section-head {
   display: grid;
-  gap: var(--s-3);
-  margin-block-end: var(--s-7);
-  padding-block-end: var(--s-5);
+  gap: var(--s-2);
+  margin-block-end: var(--s-5);
+  padding-block-end: var(--s-3);
   border-block-end: 1px solid var(--color-border-strong);
 }
 
@@ -832,14 +840,14 @@ html.js main.is-booting > section {
 
 /* ── 12. HERO ──────────────────────────────────────────────── */
 #hero {
-  padding-block-start: calc(var(--header-h) + clamp(2.5rem, 5vw, 4rem));
-  padding-block-end: clamp(2.5rem, 5vw, 4rem);
+  padding-block-start: calc(var(--header-h) + 1.5rem);
+  padding-block-end: 2.25rem;
 }
 
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: clamp(2.5rem, 5vw, 4.5rem);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
   align-items: start;
 }
 
@@ -902,7 +910,7 @@ html.js main.is-booting > section {
   color: var(--color-text-muted);
   max-inline-size: 56ch;
   text-wrap: pretty;
-  margin-block-end: var(--s-6);
+  margin-block-end: var(--s-4);
 }
 
 .hero-ctas {
@@ -924,7 +932,7 @@ html.js main.is-booting > section {
 .hero-reach-link {
   display: inline-flex;
   align-items: center;
-  min-block-size: 44px;
+  min-block-size: 36px;
   padding-inline: var(--s-1);
   color: var(--color-text-muted);
   font-weight: 500;
@@ -953,6 +961,29 @@ html.js main.is-booting > section {
   border-radius: var(--r-lg);
   padding: var(--s-5);
   box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 1081px) {
+  .hero-role {
+    font-size: clamp(2.8rem, 4.2vw, 3.5rem);
+  }
+
+  .hero-status {
+    margin-block-end: var(--s-4);
+  }
+
+  .layer-stack {
+    padding: var(--s-4);
+  }
+
+  .layer-stack-head {
+    padding-block-end: var(--s-3);
+    margin-block-end: 0;
+  }
+
+  .layer {
+    padding-block: 0.55rem;
+  }
 }
 
 .layer-stack-head {
@@ -1100,9 +1131,9 @@ html.js main.is-booting > section {
 
 .role {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 0 var(--s-6);
-  padding-block: var(--s-6);
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 0 1.5rem;
+  padding-block: 1.5rem;
   border-block-start: 1px solid var(--color-border);
 }
 
@@ -1183,15 +1214,15 @@ html.js main.is-booting > section {
 .workstreams {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s-5);
-  margin-block: var(--s-2) var(--s-2);
+  gap: 1rem;
+  margin-block: 0;
 }
 
 .workstream {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-2);
   align-content: start;
-  padding-block-start: var(--s-4);
+  padding-block-start: var(--s-3);
   border-block-start: 2px solid var(--color-primary);
 }
 
@@ -1208,6 +1239,12 @@ html.js main.is-booting > section {
   font-size: var(--fs-label);
   font-weight: 500;
   color: var(--color-primary);
+}
+
+.workstream-scope-label {
+  margin-inline-end: var(--s-2);
+  color: var(--color-text-subtle);
+  font-weight: 400;
 }
 
 .workstream .tool-line {

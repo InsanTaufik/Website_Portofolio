@@ -26,6 +26,8 @@
       '<svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>',
     mail:
       '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
+    phone:
+      '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><path d="M6.6 3.5 9 3l2 5-2.2 1.8a14.5 14.5 0 0 0 5.4 5.4L16 13l5 2 .5 2.4a2 2 0 0 1-2 2.6C11.4 19.4 4.6 12.6 3.9 4.5a2 2 0 0 1 2.7-1z"/></svg>',
     linkedin:
       '<svg viewBox="0 0 24 24" stroke-width="1.75" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-11h4v1.5A4 4 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
     github:
@@ -216,7 +218,9 @@
         (w) => `
         <section class="workstream">
           <h4 class="workstream-title">${esc(w.title)}</h4>
-          <p class="workstream-scope">${esc(w.scope)}</p>
+          <p class="workstream-scope"><span class="workstream-scope-label">Workflow:</span> ${esc(
+            w.scope
+          )}</p>
           ${checklist(w.points)}
           ${toolLine(w.tools, "Tools")}
         </section>`
@@ -403,8 +407,6 @@
       .join("");
 
     const ed = a.education;
-    const ta = a.teaching;
-
     byId("about-root").innerHTML = `
       <div class="about-grid">
         <div class="about-bio">
@@ -420,14 +422,9 @@
               <dd>${esc(ed.school)} · ${esc(ed.detail)}</dd>
               <dd class="background-period">${esc(ed.period)}</dd>
             </div>
-            <div>
-              <dt>${esc(ta.role)}</dt>
-              <dd>${esc(ta.place)}. ${esc(ta.detail)}</dd>
-              <dd class="background-period">${esc(ta.period)}</dd>
-            </div>
           </dl>
           <ul class="cred-list">${creds}</ul>
-          <p class="background-languages"><span class="mono-label">Languages</span> ${esc(a.languages)}</p>
+          <p class="background-languages"><span class="mono-label">Languages -</span> ${esc(a.languages)}</p>
         </div>
       </div>`;
   }
